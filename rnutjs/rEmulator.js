@@ -280,6 +280,10 @@ function step(){
 }
 
 function stop() {
+  if(!notfast){
+    show_regs();
+    show_memory();
+  }
   notfast=true;
   running=0;
   clearTimeout(stopper);

@@ -14,7 +14,6 @@ if(files===null||files.length===0){
 \n\
 0x0100: load 0xFFF1 R0 \n\
 \tand R0 ONE R0 \n\
-\tpush ONE \n\
 \tjumpnz R0 0x200 \n\
 \tjump 0x100 \n\
   \n\
