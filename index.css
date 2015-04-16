@@ -1,0 +1,332 @@
+
+
+body {padding: 1%;background-color: #f2f2f2;font-size:13px; padding-top:10px;}
+
+#terminal_s {
+  border: 0;
+  resize: none;
+  width: calc(100% - 220px);
+  height: calc(100% - 6px);
+  border-style: none;
+        border-color: Transparent;
+        overflow: auto;
+        outline: none;
+}
+
+.material {
+  float: right;
+  height: 100%;
+  background-color: #039be5;
+  border: 0px solid black;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  width: 100px;
+}
+
+.material:focus {
+  outline-width: 0;
+}
+
+
+.material {
+  transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: 0.2s;
+  box-shadow: 0 0px 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.material:active {
+  box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.4);
+  transition-delay: 0s;
+}
+
+.material > paper-ripple {
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.title {
+  padding: 20px;
+  padding-top: 10px;
+  position: absolute;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.outer-west {
+  margin:0;
+  padding:0;
+}
+
+#outer-center, .outer-north, .outer-west  {
+  back-ground-color: #f2f2f2;
+  padding: 10px;
+}
+
+
+
+#editor {
+  width: 100%;
+  height:100%;
+  left: 0;
+  float:left;
+  z-index: 10;
+  box-shadow: 0 0 10px #ccc;
+
+}
+
+
+.CodeMirror {height: 100%; line-height: 120%;}
+
+#selectable tbody tr:hover {
+  background-color: #374046;
+  cursor: pointer;
+  color: #fff;
+}
+
+#selectable {
+  background-color: white;
+  width: 100%;
+  border: 0px solid black;
+  border-spacing: 0;
+}
+
+#selectable thead {
+  background-color: #F8F8F8;
+}
+
+
+
+#selectable th {
+  background-color: #374046;
+  color: #fff;
+  border: none;
+  padding: 10px 10px;
+  text-align: left;
+  width: 80px;
+}
+
+
+#selectable td {
+  padding: 3px 10px;
+  width: 25%;
+}
+
+#selectable tr:nth-child(even) {background: #F5F5F5}
+
+.selected {
+  background-color: #039be5 !important;
+  color: #fff;
+}
+
+.gap {
+  background-color: #fff;
+}
+
+#reg_table td {
+  border-bottom: 1px solid #eee;
+}
+
+.register-last {
+  border-bottom: 0px solid #eee !important;
+}
+
+#reg_table {
+  padding: 10px;
+}
+
+#reg_header {
+  background-color: #374046;
+  color: white;
+  font-weight: 900;
+  font-size: 14px;
+  padding: 10px;
+  padding-left: 15px;
+  box-shadow: 0px 0px 10px #999;
+}
+
+.register {
+  color: #039be5;
+  font-weight: 900;
+  padding: 2px 20px;
+}
+
+.register-ignore {
+  color: #999;
+}
+
+
+#settings_page{
+  height: calc(100% - 20px );
+  width: calc(100% - 10px );
+  overflow: scroll;
+  background-color: rgba(0,0,0,0);
+  position: absolute;
+  top: 0px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  z-index: -1;
+}
+
+
+
+/*
+*	NOTE: All CSS is purely cosmetic - it does not affect functionality
+*/
+
+
+
+/* customize borders to avoid double-borders around inner-layouts */
+.ui-layout-pane {
+  border:			0; /* override layout-default-latest.css */
+  border-top:		0px solid #BBB;
+  border-bottom:	0px solid #BBB;
+}
+.ui-layout-pane-north ,
+.ui-layout-pane-south {
+  border:			0px solid #BBB;
+  overflow:		hidden;
+}
+.ui-layout-pane-west ,
+.ui-layout-pane-east {
+}
+.outer-west ,
+.ui-layout-pane-east {
+  padding-top: 0 !important;
+}
+.ui-layout-pane-center	{
+  border-left:	0;
+  border-right:	0;
+}
+.center, .inner-east, .inner-south, .menubar {
+  border:		0px solid #FFF;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  background-color: #fff;
+}
+
+.menubar {
+  height: 100%;
+  background-color: #039be5;
+  padding:0;
+}
+
+
+
+/* remove padding & scrolling from panes that are 'containers' for nested layouts */
+.outer-center {
+  border:			0; /* cosmetic */
+  padding:		0;
+  overflow:		hidden;
+}
+
+.center, .inner-east {
+  padding: 0px;
+}
+
+/*
+*	customize borders on panes/resizers to make pretty
+*/
+.ui-layout-pane-east		{ border-left:		0; padding-top: 0 !important; }
+.ui-layout-resizer-east		{ border-right:		0px solid #BBB; }
+.ui-layout-pane-north		{ border-bottom:	0; bottom: 0; padding-bottom: 5px;}
+.ui-layout-resizer-north	{ border-top:		0px solid #BBB; }
+.ui-layout-pane-south		{ border-top:		0; }
+.ui-layout-resizer-south	{ border-bottom: 	1px solid #BBB; }
+/*
+*	add borders to resizers when pane is 'closed'
+*
+*.ui-layout-resizer-closed	{ border:			1px solid #BBB; }
+*/
+/*
+*	show both borders when the resizer is 'dragging'
+*/
+.ui-layout-resizer-west-dragging ,
+.ui-layout-resizer-east-dragging {
+  border-left:		0px solid #BBB;
+  border-right:		0px solid #BBB;
+}
+.ui-layout-resizer-north-dragging ,
+.ui-layout-resizer-south-dragging {
+  border-top:		0px solid #BBB;
+  border-bottom:	0px solid #BBB;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// FILESYSTEM
+
+/*------------------------------------*\
+    Table (directory listing)
+\*------------------------------------*/
+#listing table {
+	background-color: #F3F3F3;
+	border-collapse: collapse;
+	width: 100%;
+	margin: 15px 0;
+}
+
+#listing th {
+	background-color: #FE4902;
+	color: #FFF;
+	cursor: pointer;
+	padding: 5px 10px;
+}
+
+#listing th small {
+	font-size: 9px;
+}
+
+#listing td, th {
+	text-align: left;
+}
+
+#listing a {
+	text-decoration: none;
+}
+
+#listing td a {
+	color: #663300;
+	display: block;
+	padding: 5px 10px;
+}
+#listing th a {
+	padding-left: 0
+}
+
+#listing td:first-of-type a {
+	background: url(./.images/file.png) no-repeat 10px 50%;
+	padding-left: 35px;
+}
+#listing th:first-of-type {
+	padding-left: 35px;
+}
+
+#listing #listing td:not(:first-of-type) a {
+	background-image: none !important;
+}
+
+#listing tr:nth-of-type(odd) {
+	background-color: #E6E6E6;
+}
+
+#listing tr:hover td {
+	background-color:#CACACA;
+}
+
+#listing tr:hover td a {
+	color: #000;
+}

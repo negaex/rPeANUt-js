@@ -1,0 +1,197 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+
+		<meta name="viewport" content="minimal-ui" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="viewport" content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no,minimal-ui" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<!-- iPad (high-resolution Landscape – 2048 x 1496 pixels ) -->
+		<link rel="apple-touch-startup-image" sizes="1536x2008" href="loading/apple-touch-startup-image-2048x1496.png" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait) and (-webkit-min-device-pixel-ratio: 2)" />
+
+		<!-- iPad (high-resolution) Portrait – 1536 x 2008 pixels -->
+		<link rel="apple-touch-startup-image" sizes="2048x1496" href="loading/apple-touch-startup-image-1536x2008.png" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape) and (-webkit-min-device-pixel-ratio: 2)" />
+
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+		<title>rPeANUt</title>
+
+		<link rel=stylesheet href="mirror/lib/codemirror.css">
+		<link rel=stylesheet href="mirror/theme/eclipse.css">
+		<link type="text/css" rel="stylesheet" href="layout/layout.css" />
+		<link type="text/css" rel="stylesheet" href="index.css" />
+		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="files.css">
+
+		<!-- Dropbox -->
+		<script src="https://www.dropbox.com/static/api/dropbox-datastores-1.2-latest.js" type="text/javascript"></script>
+
+		<!-- setZeroTimeout -->
+		<script src="setzerotimeout.js"></script>
+
+		<!-- Sweet Alert -->
+		<script src="alertjs/sweet-alert.min.js"></script>
+		<link rel="stylesheet" href="alertjs/sweet-alert.css">
+
+		<!-- CodeMirror -->
+		<script src="mirror/lib/codemirror.js"></script>
+		<script src="mirror/mode/gas/gas.js"></script>
+		<script src="mirror/addon/search/search.js"></script>
+		<script src="mirror/addon/search/searchcursor.js"></script>
+		<script src="mirror/addon/dialog/dialog.js"></script>
+		<link type="text/css" rel="stylesheet" href="mirror/addon/dialog/dialog.css" />
+
+
+		<script src="scroll/scrollfix.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript" src="layout/jquery.js"></script>
+		<script type="text/javascript" src="layout/jquery.ui.all.js"></script>
+		<script type="text/javascript" src="layout/jquery.layout.js"></script>
+		<script src="rnutjs/rAssembler.js"></script>
+		<script src="rnutjs/rEmulator.js"></script>
+		<script src="rnutjs/rnut.js"></script>
+
+	</head>
+	<body>
+
+		<div class="outer-center" id="outer-center">
+
+			<div class="center">
+				<div id="reg_header">
+					Registers
+				</div>
+				<table id="reg_table">
+					<tbody>  </tbody>
+				</table>
+			</div>
+
+			<div class="inner-east" id="scrollable">
+				<table id="selectable">
+					<thead>
+						<tr>
+							<th>Label</th>
+							<th>Address</th>
+							<th>Data</th>
+							<th>Asm</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="ui-layout-south inner-south">
+				<textarea id="terminal_s"></textarea>
+				<canvas id="canvas" width="192" height="160" style="float:right; height:100%;width:auto;"></canvas>
+			</div>
+
+		</div>
+
+		<div class="outer-west">
+			<div id="editor">
+				<textarea id="editor-m"></textarea>
+				<a href="" id="settings" style="position: absolute; right: 21px; top:8px; z-index:301;opacity:1;">
+					<i class="fa fa-times" style="color: #039be5; font-size: 20px;"></i>
+				</a>
+				<!--<a href="" id="save" style="position: absolute; right: 41px; top:18px; z-index:301;opacity:1;">
+					<i class="fa fa-save" style="color: #039be5; font-size: 16px;"></i>
+				</a>-->
+			</div>
+				<div id="settings_page">
+					<div class="filemanager">
+					<p>Local Storage</p>
+					<ul id="local" class="data">
+					</ul>
+					<p class="dropbox-hide">Dropbox</p>
+					<button href="#" onclick="client.authenticate();" id="dropbox-login">Dropbox Sync</button>
+					<ul id="dropbox" class="data dropbox-hide">
+					</ul>
+
+
+				</div>
+			</div>
+		</div>
+
+		<div class="ui-layout-north outer-north">
+			<div class="menubar">
+				<a class="title">rPeANUt</a>
+				<button onclick="stop()" class="material button_show" hidden>Stop</button>
+				<button onclick="run(0)" class="material button_hide">Run</button>
+				<button onclick="notfast=false;run(0)" class="material button_hide">Fast</button>
+				<button onclick="call_step()" class="material button_hide">Step</button>
+				<button onclick="run_assembler()" class="material button_hide">Assemble</button>
+			</div>
+		</div>
+
+	</body>
+
+	<script>
+
+
+	var editor = CodeMirror.fromTextArea(document.getElementById("editor-m"), {
+		lineNumbers: true,
+		styleActiveLine: true,
+		matchBrackets: true,
+		theme: "eclipse",
+		indentWithTabs: true,
+		mode: {name: "gas", architecture: "rpeanut"},
+		extraKeys: {
+        "Ctrl-A": function(cm) {
+            run_assembler(); //function called when 'ctrl+s' is used when instance is in focus
+        },
+				"Ctrl-S": function(cm) {
+            call_step(); //function called when 'ctrl+s' is used when instance is in focus
+        },
+				"Ctrl-R": function(cm) {
+            if(running){stop();}else{run(0);} //function called when 'ctrl+s' is used when instance is in focus
+        },
+				"Alt-A": function(cm) {
+            run_assembler(); //function called when 'ctrl+s' is used when instance is in focus
+        },
+				"Alt-S": function(cm) {
+            call_step(); //function called when 'ctrl+s' is used when instance is in focus
+        },
+				"Alt-R": function(cm) {
+					if(running){stop();}else{run(0);} //function called when 'ctrl+s' is used when instance is in focus
+        },
+    }
+	});
+
+	$(document).ready(function(){editor.refresh(); show_regs();});
+
+	$('#terminal_s').keypress(function(event) {
+		event.preventDefault();
+		terminal.input=event.keyCode;
+		terminal.status=terminal.status | 0x01;
+		memory[0xFFF1]=terminal.status;
+	});
+
+	$('#terminal_s').keydown(function(event) {
+			if(event.keyCode==8){
+				event.preventDefault();
+			}
+    });
+
+	document.onkeypress = function(e) {
+	  e = e || window.event;
+		if(e.keyCode==1){run_assembler();}
+		if(e.keyCode==18){if(running){stop();}else{run(0);}}
+		if(e.keyCode==19){call_step();}
+	};
+
+	$("#canvas").attr("width", "192px");
+	$("#canvas").attr("height", "160px");
+
+	var canvas = document.getElementById("canvas");
+	var context = canvas.getContext("2d");
+	var imgData=context.createImageData(192,160);
+
+	reset();
+
+	</script>
+	<script type="text/javascript" src="index.js"></script>
+	<script type="text/javascript" src="filesystem.js"></script>
+	<script type="text/javascript" src="dropbox.js"></script>
+
+</html>
