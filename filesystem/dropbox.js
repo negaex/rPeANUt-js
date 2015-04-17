@@ -1,5 +1,3 @@
-
-
 var client = new Dropbox.Client({key: "ay68winb8z8uuib"});
 
 // Try to finish OAuth authorization.
@@ -48,6 +46,13 @@ if(current===null||current.length===0){
   current="default";
   localStorage.setItem("current",current);
 }
+
+
+editor.on("change", function() {
+  if(current_is_showing==2){
+    db_save(current, editor.getValue());
+  }
+});
 
 
 $("#save").click(function(e){
