@@ -7,7 +7,7 @@ The goal of this project was to create an IDE that would facilitate working acro
 
 It makes use of HTML5 local storage and the Dropbox API to store and synchronize files across sessions and devices.
 
-The IDE is mobile-web-app capable, allowing it to be run on mobile devices without the of UI the browser.
+The IDE is mobile-web-app capable, allowing it to be run on mobile devices without the of UI the browser. It also supports HTML5 caching, allowing it to be run in-browser or as a native app with no internet connection.
 
 Features coming in future updates:
   1. Macros
