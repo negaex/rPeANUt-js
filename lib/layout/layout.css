@@ -71,7 +71,7 @@ body {
 .ui-layout-resizer	{ /* all 'resizer-bars' */
 	background:		#f2f2f2;
 	border:			0px solid #BBB;
-	opacity: 0.0;
+	opacity: 0;
 	border-width:	0;
 	}
 	.ui-layout-resizer-drag {		/* REAL resizer while resize in progress */
@@ -122,8 +122,8 @@ body {
  *	TOGGLER-BUTTONS
  */
 .ui-layout-toggler {
-	border: 1px solid #e2; /* match pane-border */
-	background-color: #f2f2f2;
+	border: 1px solid #e22; /* match pane-border */
+	background-color: #000;
 	}
 	.ui-layout-resizer-hover .ui-layout-toggler {
 		opacity: .60;

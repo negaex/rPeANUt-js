@@ -35,7 +35,7 @@
 	cursor: pointer;
 	box-sizing: border-box;
 	transition: 0.3s background-color;
-	box-shadow: 2px 2px 10px rgba(0,0,0,0.4);
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .filemanager .data li:hover {

@@ -7,9 +7,9 @@ var current_is_showing=0;
 var files=localStorage.getItem("files");
 
 if(files===null||files.length===0){
-  files=["cat.rpe"];
+  files=["Cat.rpe"];
   localStorage.setItem("files",files);
-  localStorage.setItem("f-cat.rpe"," \n\
+  localStorage.setItem("f-Cat.rpe"," \n\
 ; This program prints the input \n\
 \n\
 0x0100: load 0xFFF1 R0 \n\
@@ -34,7 +34,7 @@ if(current===null||current.length===0){
 editor.on("change", function() {
   if(current_is_showing==1){
     fs_save(current, editor.getValue());
-  } 
+  }
 });
 
 function fs_save(filename, content) {
@@ -43,6 +43,9 @@ function fs_save(filename, content) {
 
 function fs_open(filename) {
   var cookieval = localStorage.getItem("f-"+filename);
+  if(cookieval===null || cookieval.length===0){
+    return -1;
+  }
   return cookieval;
 }
 
@@ -51,7 +54,14 @@ function fs_list () {
   $('#local').empty();
   for(i=0;i<files.length;i++){
     file=files[i];
-    var length = fs_open(file).replace(/%[A-F\d]{2}/g, 'U').length;
+    var filecontent = fs_open(file);
+    if(filecontent==-1){
+      files.splice(i,1);
+      localStorage.setItem("files",files);
+      i--;
+      continue;
+    }
+    var length = filecontent.replace(/%[A-F\d]{2}/g, 'U').length
     $('#local').append('<li class="files" onclick="open_file(\''+file+'\');return false;"><a class="files"><span class="icon file f-text">.rpe</span><div class="rightf"><span class="name">'+file+'</span> <span class="details">'+length+'kB</span><a class="del" href="#" hidefocus="hidefocus" onclick="delete_file(\''+file+'\')"><i class="fa fa-times"></i></a></div></a></li>');
   }
   $('#local').append('<li class="files"><a href="#" onclick="new_file();return false;" class="files"><span class="icon file f-js">New</span><div class="rightf"><span class="name">New File</span> <span class="details"></span></div></a></li>');

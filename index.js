@@ -7,6 +7,7 @@ $(document).ready(function () {
     center__paneSelector:	".outer-west"
     ,	east__paneSelector:		".outer-center"
     ,	east__size:				550
+    , triggerEventsOnLoad: true
     ,	spacing_open:			10  // ALL panes
     ,	spacing_closed:			6 // ALL panes
     //,	north__spacing_open:	0
@@ -26,14 +27,10 @@ $(document).ready(function () {
 
   });
 
+  
 });
 
 
-
-$(document).ready(function(){
-  $('table tbody tr').click(function(){
-  });
-});
 
 
 (function($) {

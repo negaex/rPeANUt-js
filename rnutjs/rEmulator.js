@@ -58,7 +58,7 @@ function f_mult   (RS1, RS2, RD)  { r_write(RD, RS1.value * RS2.value);}
 function f_div    (RS1, RS2, RD)  { r_write(RD, Math.floor(RS1.value / RS2.value) );}
 function f_mod    (RS1, RS2, RD)  { r_write(RD, RS1.value % RS2.value);}
 function f_and    (RS1, RS2, RD)  { r_write(RD, RS1.value & RS2.value);}
-function f_or     (RS1, RS2, RD)  { r_write(RD, RS1.value | RS2.value);}
+function f_or     (RS1, RS2, RD)  { r_write(RD, b_or(RS1.value, RS2.value) );}
 function f_xor    (RS1, RS2, RD)  { r_write(RD, RS1.value ^ RS2.value);}
 function f_neg    (RS, RD)        { r_write(RD, (0xFFFFFFFF+RS1.value) ^ 0xFFFFFFFF);}
 function f_not    (RS, RD)        { r_write(RD, ~ RS.value);}
@@ -74,8 +74,8 @@ function f_reset  (bit)           { SR.value = SR.value & ~(1<<bit);}
 function f_set    (bit)           { SR.value = SR.value | (1<<bit);}
 function f_push   (RS)            { SP.value++; m_write(SP.value, RS.value); }
 function f_pop    (RD)            { r_write( RD, m_read(SP.value)); SP.value--;}
-function f_rotate_0(value,RS,RD)  { r_write( RD, RS.value << value | RS.value >>> (32-value)); }
-function f_rotate_1(RS, RA, RD)   { r_write( RD, RS.value << RA.value | RS.value >>> (32 - RA.value)); }
+function f_rotate_0(RS,RD,value)  { r_write( RD, b_rotate(RS.value,value)); }
+function f_rotate_1(RA, RS, RD)   { r_write( RD, b_rotate(RS.value,RA.value)); }
 function f_load_0 (RD, value)     { r_write( RD, value);}
 function f_load_1 (RD,address)    { r_write( RD, m_read(address));}
 function f_load_2 (RSA, RD)       { r_write( RD, m_read(RSA.value));}
@@ -84,8 +84,81 @@ function f_store_0(RS, address)   { m_write( address, RS.value);}
 function f_store_1(RS, RDA)       { m_write( RDA.value,RS.value);}
 function f_store_2(RS,RDA,value)  { m_write( RDA.value+value, RS.value);}
 
+
+function string_replace_at(string, value, index) {
+  string = string.substr(0,index)+value+string.substr(index+1,string.length-index);
+  return string;
+}
+
+function fix_length (hstr, len){
+    while(hstr.length<len){
+         hstr="0"+hstr;
+           }
+    while(hstr.length>len){
+         hstr=hstr.substr(1,hstr.length);
+           }
+      return hstr;
+}
+
+//BITWISE FUNCTIONS
+
+
+function b_and  (V1, V2)  {
+  var bV1=fix_length(V1.toString(2),32);
+  var bV2=fix_length(V2.toString(2),32);
+  var bV3="00000000000000000000000000000000";
+  for(var jji=0;jji<32;jji++){
+    if(bV1[jji]=="1" && bV2[jji]=="1"){
+      bV3 = string_replace_at(bV3,"1",jji);
+    }
+  }
+  return parseInt(bV3,2);
+}
+
+function b_or   (V1, V2)  {
+  var bV1=fix_length(V1.toString(2),32);
+  var bV2=fix_length(V2.toString(2),32);
+  var bV3="00000000000000000000000000000000";
+  for(var jji=0;jji<32;jji++){
+    if(bV1[jji]=="1" || bV2[jji]=="1"){
+      bV3 = string_replace_at(bV3,"1",jji);
+    }
+  }
+  return parseInt(bV3,2);
+}
+
+function b_xor  (V1, V2)  {
+  var bV1=fix_length(V1.toString(2),32);
+  var bV2=fix_length(V2.toString(2),32);
+  var bV3="00000000000000000000000000000000";
+  for(var jji=0;jji<32;jji++){
+    if((bV1[jji]=="1" || bV2[jji]=="1") && !(bV1[jji]=="1" && bV2[jji]=="1")){
+      bV3 = string_replace_at(bV3,"1",jji);
+    }
+  }
+  return parseInt(bV3,2);
+}
+
+function b_rotate   (V1, amount)  {
+  var bV1=fix_length(V1.toString(2),32);
+  for(var jji=0;jji<amount;jji++){
+    bV1=bV1.substr(1,bV1.length)+bV1.substr(0,1);
+  }
+  return parseInt(bV1,2);
+}
+
+
+
+function cut(value, length){
+    while(value.toString(16).length>length){
+      value=parseInt(value.toString(16).substr(1),16);
+    }
+    return value;
+}
+
 function r_write(register, value){
   if(register.permission=="wr" || register.permission=="w"){
+    value=cut(value,8);
     register.value=value;
   }
 }
@@ -94,7 +167,9 @@ function m_read(address){
   if(address==0xFFF0){
     terminal.status=terminal.status & 0x10;
     memory[0xFFF1]=terminal.status;
-    return terminal.input;
+    var ret = terminal.input;
+    terminal.input=0;
+    return ret;
   }
   return memory[address];
 }
@@ -239,10 +314,14 @@ function run(timeout){
   running=1;
   $('.button_hide').hide();
   $('.button_show').show();
-  run_loop(timeout);
+  run_loop(timeout,1);
 }
 
-function run_loop(timeout){
+function run_loop(timeout,first){
+  if(memory_break[PC.value]==1 && first===0){
+    stop();
+    return;
+  }
   var rcode = step();
   if(rcode==-1){
     halted=true;
@@ -250,7 +329,7 @@ function run_loop(timeout){
     return;
   }
   else{
-    stopper = setZeroTimeout(function(){ run_loop(timeout); });
+    stopper = setZeroTimeout(function(){ run_loop(timeout,0); });
     //run_loop(timeout);
   }
 }
@@ -266,6 +345,7 @@ function step(){
     stop();
     return 0;
   }
+  memory_profiling[PC.value]++;
   var data = memory[PC.value];
   data_s=print(data);
   var rcode=control_unit(data_s);

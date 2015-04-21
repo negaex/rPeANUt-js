@@ -5,7 +5,6 @@ body {padding: 1%;background-color: #f2f2f2;font-size:13px; padding-top:10px;}
 #terminal_s {
   border: 0;
   resize: none;
-  width: calc(100% - 220px);
   height: calc(100% - 6px);
   border-style: none;
         border-color: Transparent;
@@ -102,21 +101,36 @@ body {padding: 1%;background-color: #f2f2f2;font-size:13px; padding-top:10px;}
   background-color: #374046;
   color: #fff;
   border: none;
-  padding: 10px 10px;
+  padding: 10px 2px;
   text-align: left;
-  width: 80px;
 }
 
 
 #selectable td {
-  padding: 3px 10px;
-  width: 25%;
+  padding: 3px 1px;
 }
 
 #selectable tr:nth-child(even) {background: #F5F5F5}
 
+.breaker {
+    background-color: #E91E63 !important;
+  color: #fff;
+}
+
+.breaker td {
+  color: #fff;
+}
+
+.breaker.selected {
+  background-color: #830ba5 !important;
+}
+
 .selected {
   background-color: #039be5 !important;
+  color: #fff;
+}
+
+.selected td {
   color: #fff;
 }
 
@@ -202,7 +216,7 @@ body {padding: 1%;background-color: #f2f2f2;font-size:13px; padding-top:10px;}
 }
 .center, .inner-east, .inner-south, .menubar {
   border:		0px solid #FFF;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
   background-color: #fff;
 }
 

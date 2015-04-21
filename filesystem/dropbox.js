@@ -62,19 +62,30 @@ $("#save").click(function(e){
 
 function db_save(filename, content) {
   //localStorage.setItem("f-"+filename, content);
+  db_cache[filename]=content;
   client.writeFile(filename, content, function(error, stat) {
   if (error) {
-    return showError(error);  // Something went wrong.
+    return error;  // Something went wrong.
   }
   });
+}
+
+var db_cache = {};
+
+function db_open_to_cache(filename) {
+  client.readFile(filename, function(error, data) {
+  if (error) {
+    return error;
+  }
+  db_cache[filename]=data;
+});
 }
 
 function db_open(filename) {
   client.readFile(filename, function(error, data) {
   if (error) {
-    return showError(error);  // Something went wrong.
+    return error;
   }
-
   editor.setValue(data);
 });
 }
@@ -85,10 +96,11 @@ function db_list () {
   client.readdir("/", function(error, files) {
     db_files=files;
   if (error) {
-    return showError(error);  // Something went wrong.
+    return error;  // Something went wrong.
   }
   for(i=0;i<files.length;i++){
     file=files[i];
+    db_open_to_cache(file);
     $('#dropbox').append('<li class="files"><a href="#" onclick="db_open_file(\''+file+'\');return false;" class="files"><span class="icon file f-text">.rpe</span><div class="rightf"><span class="name">'+file+'</span> <span class="details"></span></li>');
   }
   $('#dropbox').append('<li class="files"><a href="#" onclick="db_new_file();return false;" class="files"><span class="icon file f-js">New</span><div class="rightf"><span class="name">New File</span> <span class="details"></span></div></a></li>');

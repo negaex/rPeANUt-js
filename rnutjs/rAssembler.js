@@ -47,8 +47,8 @@ instr = {
   "store":  {"RA" :"0xD1%0%1",
              "RR" :"0xD2%0%1",
              "RVR":"0xD3%0%2%1"},                                               // mem[addr] <- RS
-  "block":  {"V"  :"%0",
-             "A"  :"0"},
+  "block":  {"V"  :"0x0000%0",
+             "A"  :"0x00000000"},
 };
 
 var label_address=[];
@@ -80,7 +80,41 @@ function run_assembler() {
     lines.push(ji+1);
   }
 
-  // Loop through each line and assemble it.
+  //Check for #includes (quite messy! needs cleaning up)
+  j=0;
+  while(j<codes.length){
+     var line = $.trim(codes[j]);
+     line=line.match(/[^;]*/)[0];
+     line=line.replace(/ +(?= )/g,'');
+     line=line.replace(/\t+/g,' ');
+     if(line.substr(0,10)=='#include "'){
+       var filename=line.substr(10, line.length-11);
+       var newcodes=fs_open(filename);
+       if(newcodes===-1){
+         //newcodes=db_open(filename);
+         if(filename in db_cache){
+           newcodes=db_cache[filename];
+         }
+         else{
+           alert("ParseException at line "+lines[j]+".\nFile not found in local-storage: "+filename);
+           return -1;
+         }
+       }
+       newcodes=newcodes.split("\n");
+       codes.splice(j,1);
+       for(var jplus=0;jplus<newcodes.length;jplus++){
+         codes.splice(j+jplus,0,newcodes[jplus]);
+       }
+     }
+     j++;
+   }
+
+   lines=[];
+   for(ji=0;ji<codes.length;ji++){
+     lines.push(ji+1);
+   }
+
+  // Loop through each line and pre-process it.
   for (j = 0; j < codes.length; j++) {
      var ret = preprocessor(codes[j],lines[j]);
      if(ret!==0){
@@ -88,6 +122,7 @@ function run_assembler() {
     }
    }
 
+  mem_counter=0;
   for (var j = 0; j < codes.length; j++) {
      var tmp = assemble(codes[j],lines[j]);
      if(tmp==-2){

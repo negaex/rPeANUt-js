@@ -2,11 +2,20 @@
 <html xmlns="http://www.w3.org/1999/xhtml"i manifest="cache.manifest">
 	<head>
 
+
+    <script>
+      if ((document.location.hostname != "localhost") && (window.location.protocol != "https:"))
+          window.location.protocol = "https";
+      </script>
+
+    <meta name="description" content="A web-based rPeANUt IDE, assembler and emulator by ***REMOVED***. An alternate development platform for ANU's COMP2300 rPeANUt architecture." />
+    <meta name="author"      content="***REMOVED***" />
+
 		<meta name="viewport" content="minimal-ui" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="mobile-web-app-capable" content="yes" />
 		<meta name="viewport" content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no,minimal-ui" />
-		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
 		<!-- iPad (high-resolution Landscape – 2048 x 1496 pixels ) -->
 		<link rel="apple-touch-startup-image" sizes="1536x2008" href="loading/apple-touch-startup-image-2048x1496.png" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait) and (-webkit-min-device-pixel-ratio: 2)" />
@@ -18,12 +27,12 @@
 
 		<title>rPeANUt</title>
 
-		<link rel=stylesheet href="lib/mirror/lib/codemirror.css">
-		<link rel=stylesheet href="lib/mirror/theme/eclipse.css">
+		<link rel=stylesheet href="lib/mirror/lib/codemirror.css" />
+		<link rel=stylesheet href="lib/mirror/theme/eclipse.css" />
 		<link type="text/css" rel="stylesheet" href="lib/layout/layout.css" />
 		<link type="text/css" rel="stylesheet" href="index.css" />
-		<link rel="stylesheet" href="lib/fa/css/font-awesome.min.css">
-		<link rel="stylesheet" href="filesystem/files.css">
+		<link rel="stylesheet" href="lib/fa/css/font-awesome.min.css" />
+		<link rel="stylesheet" href="filesystem/files.css" />
 
 		<!-- Dropbox -->
     <script src="lib/dropbox-api.js" type="text/javascript"></script>
@@ -33,7 +42,7 @@
 
 		<!-- Sweet Alert -->
 		<script src="lib/alertjs/sweet-alert.min.js"></script>
-		<link rel="stylesheet" href="lib/alertjs/sweet-alert.css">
+		<link rel="stylesheet" href="lib/alertjs/sweet-alert.css" />
 
 		<!-- CodeMirror -->
 		<script src="lib/mirror/lib/codemirror.js"></script>
@@ -70,6 +79,7 @@
 				<table id="selectable">
 					<thead>
 						<tr>
+							<th></th>
 							<th>Label</th>
 							<th>Address</th>
 							<th>Data</th>
@@ -83,7 +93,7 @@
 
 			<div class="ui-layout-south inner-south">
 				<textarea id="terminal_s"></textarea>
-				<canvas id="canvas" width="192" height="160" style="float:right; height:100%;width:auto;"></canvas>
+				<canvas id="canvas" style="float:right; height:100%;width:auto;"></canvas>
 			</div>
 
 		</div>
@@ -183,9 +193,29 @@
 	$("#canvas").attr("width", "192px");
 	$("#canvas").attr("height", "160px");
 
+
+divH = divW = 0;
+jQuery(document).ready(function(){
+    divW = jQuery("#canvas").width();
+});
+function checkResize(){
+    var w = jQuery("#canvas").width();
+    if (w != divW) {
+        /*what ever*/
+      $("#terminal_s").css("width","calc( 100% - "+($("#canvas").width()+20)+"px )");
+        divW = w;
+    }
+}
+jQuery(window).resize(checkResize);
+var timer = setInterval(checkResize, 2000);
+
+
+
 	var canvas = document.getElementById("canvas");
 	var context = canvas.getContext("2d");
 	var imgData=context.createImageData(192,160);
+  //context.imageSmoothingEnabled= false;
+  //context.webkitImageSmoothingEnabled = context.imageSmoothingEnabled = context.mozImageSmoothingEnabled = context.oImageSmoothingEnabled = false;
 
 	reset();
 
