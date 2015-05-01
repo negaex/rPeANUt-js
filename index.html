@@ -1,5 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"i manifest="cache.manifest">
+<html xmlns="http://www.w3.org/1999/xhtml" manifest="cache.manifest">
+<!--<html xmlns="http://www.w3.org/1999/xhtml">-->
+<!--<html xmlns="http://www.w3.org/1999/xhtml"i manifest="cache.manifest">-->
 	<head>
 
 
@@ -175,6 +177,9 @@
 		terminal.input=event.keyCode;
 		terminal.status=terminal.status | 0x01;
 		memory[0xFFF1]=terminal.status;
+    if( memory[0xFFF2] & 1 == 1){
+      interrupt_que = 1;
+    }
 	});
 
 	$('#terminal_s').keydown(function(event) {

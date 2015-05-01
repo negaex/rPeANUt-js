@@ -34,8 +34,8 @@ instr = {
   "jumpz":  {"RA" :"0xA41%0%1"},                                                // if (R == 0x00000000) { PC <- address  }
   "jumpn":  {"RA" :"0xA42%0%1"},                                                // if ((R&0x80000000) != 0x00000000) { PC <- address  }
   "jumpnz": {"RA" :"0xA43%0%1"},                                                // if (R != 0x00000000) {PC <- address}
-  "reset":  {"A"  :"0xA50%0000"},                                               // SR <- SR & ~(1<<BIT)
-  "set":    {"A"  :"0xA51%00000"},                                              // SR <- SR | (1<<BIT)
+  "reset":  {"B"  :"0xA50%00000"},                                               // SR <- SR & ~(1<<BIT)
+  "set":    {"B"  :"0xA51%00000"},                                              // SR <- SR | (1<<BIT)
   "push":   {"R"  :"0xA60%00000"},                                              // SP <- SP+1, mem[SP]<-RS
   "pop":    {"R"  :"0xA61%00000"},                                              // RD <- mem[SP], SP <- SP -1
   "rotate": {"VRR":"0xB0%1%2%0",                                                // RD <- RS << amount | RS >>> (32-amount)
@@ -58,6 +58,19 @@ var label_name=[];
 function run_assembler() {
   "use strict";
 
+  
+  /* Order of assembly:
+   *
+   * 1. Split code by newlines
+   * 2. Include #include files
+   * 3. Expand macros (not implemented yet)
+   * 4. Resolve labels
+   * 5. Assemble
+   *
+   */
+
+  
+
   stop();
 
   reset();
@@ -71,8 +84,6 @@ function run_assembler() {
   var codes=code.split("\n");
   //var codes=code.match(/\n[^"]*\n|[^\s"]+/g);
 
-  // Resolve labels.
-  //codes = preprocessor(codes);
 
   // Used for Error Codes. Eg: "Error at line XX".
   var lines=[];
@@ -114,7 +125,7 @@ function run_assembler() {
      lines.push(ji+1);
    }
 
-  // Loop through each line and pre-process it.
+  // Loop through each line and pre-process it, resolving labels
   for (j = 0; j < codes.length; j++) {
      var ret = preprocessor(codes[j],lines[j]);
      if(ret!==0){
@@ -197,6 +208,10 @@ function token_type(token,linenu){
   if(token in register_obj){
     obj_token.type="R";
     obj_token.value=register_obj[token].hex;
+  } else
+  if(token in bit_index_in_sr){
+    obj_token.type="B";
+    obj_token.value=bit_index_in_sr[token];
   } else
   if( !isNaN(token)){
     obj_token.type="A";

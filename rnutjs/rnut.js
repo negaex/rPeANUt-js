@@ -45,12 +45,26 @@ var register_obj={
 
 var register_names=["R0","R1","R2","R3","R4","R5","R6","R7","SP","SR","PC","ONE","ZERO","MONE"];
 
+
+var bit_names = ["OF", "IM", "TI"]
+
+var bit_index_in_sr = {
+  "OF": 0,
+  "IM": 1,
+  "TI": 2
+} // same as bit_name.index_of
+
 //MEMORY
 var memory = [], mem_counter=0;
 var memory_key = [];
 var memory_label = [];
 var memory_break = [];
 var memory_profiling = [];
+
+//CLOCK
+var clock_count=0;
+
+var interrupt_que=-1;
 
 var stopper;
 var halted;
@@ -65,6 +79,9 @@ function reset() {
   memory_label=[];
   memory_break=[];
   memory_profiling=[];
+
+  clock_count=0;
+  interrupt_que=-1;
 
   $("#terminal_s").text('');
 
