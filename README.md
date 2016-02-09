@@ -14,7 +14,7 @@ Features coming in future updates:
   2. Screndump
   3. Strings in blocks
 
-In the long run, the plan is to replace the rPeANUt emulator with a hardware simulator, including cache replacement policies.
+In the long run, the plan is to replace the rPeANUt emulator with a hardware simulator.
 
 Preview
 =======

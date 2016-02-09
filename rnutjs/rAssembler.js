@@ -58,18 +58,19 @@ var label_name=[];
 function run_assembler() {
   "use strict";
 
-  
+
   /* Order of assembly:
    *
    * 1. Split code by newlines
-   * 2. Include #include files
-   * 3. Expand macros (not implemented yet)
-   * 4. Resolve labels
-   * 5. Assemble
+   * 2. Replace #define values
+   * 3. Include #include files
+   * 4. Expand macros (not implemented yet)
+   * 5. Resolve labels
+   * 6. Assemble
    *
    */
 
-  
+
 
   stop();
 
@@ -84,11 +85,10 @@ function run_assembler() {
   var codes=code.split("\n");
   //var codes=code.match(/\n[^"]*\n|[^\s"]+/g);
 
-
   // Used for Error Codes. Eg: "Error at line XX".
   var lines=[];
   for(var ji=0;ji<codes.length;ji++){
-    lines.push(ji+1);
+    lines.push([codes[ji],ji+1]);
   }
 
   //Check for #includes (quite messy! needs cleaning up)
@@ -107,7 +107,7 @@ function run_assembler() {
            newcodes=db_cache[filename];
          }
          else{
-           alert("ParseException at line "+lines[j]+".\nFile not found in local-storage: "+filename);
+           alert("ParseException at line "+lines[j][1]+".\nFile not found in local-storage: "+filename);
            return -1;
          }
        }
@@ -120,22 +120,60 @@ function run_assembler() {
      j++;
    }
 
-   lines=[];
-   for(ji=0;ji<codes.length;ji++){
-     lines.push(ji+1);
-   }
+  var lines=[];
+  for(var ji=0;ji<codes.length;ji++){
+   lines.push([codes[ji],ji+1]);
+  }
+
 
   // Loop through each line and pre-process it, resolving labels
   for (j = 0; j < codes.length; j++) {
-     var ret = preprocessor(codes[j],lines[j]);
+     var ret = preprocessor(codes[j],lines[j][1]);
+     if(ret==-1) {
+       alert("ParseException on line "+lines[j][1]+": "+codes[j]+"\nGoing back! (Your code appears to be trying to assemble into memory that has already passed)");
+       return;
+     }
      if(ret!==0){
       mem_counter++;
     }
    }
 
+   var copy = codes.length;
+   var offset = 0;
+   for(var j=0; j<copy; j++) {
+     line = codes[j+offset];
+     if(line==null) {continue;}
+     var sp = line.match(/\S+/g);
+     if(sp==null) {continue;}
+     var block = 0;
+     if(sp[0]=="block") {block=1}
+     if(sp[1]=="block") {block=2}
+     if(block>0) {
+       if (sp[block].substring(0,2)=="#\"") {
+         var oldoff=offset;
+         while(sp[block].length>4) {
+           last = sp[block].slice(-2,-1);
+           sp[block]=sp[block].slice(0,-2)+"\"";
+           codes.splice(j+offset+1,0,"\t\tblock #'"+last+"''");
+           lines.splice(j+offset+1,0,["\t\tblock #''"+last+"'",j]);
+           offset++;
+         }
+         current=sp[0];
+         if(block=2) {current+=" "+sp[1];}
+         current+=" #'"+sp[block][2]+"'";
+         codes[j+oldoff]=current;
+         lines[j+oldoff]=[current,j];
+         codes.splice(j+offset+1,0,"halt");
+         lines.splice(j+offset+1,0,["halt",j]);
+         offset++;
+       }
+     }
+   }
+
+
   mem_counter=0;
   for (var j = 0; j < codes.length; j++) {
-     var tmp = assemble(codes[j],lines[j]);
+     var tmp = assemble(codes[j],lines[j][1]);
      if(tmp==-2){
        return;
      }
@@ -161,8 +199,10 @@ function preprocessor(line,linenu){
   line=line.replace(" :",":");
 
   //var words = line.split(" ");
-  var words = line.match(/'[^"]*'|[^\s"]+/g);
+  //var words = line.match(/'[^"]*'|[^\s"]+/g);
+  var words = line.match(/'[^]*'|[^\s]+/g);
   var mac="";
+
 
   //ignore empty lines
   if(words===null){
@@ -174,7 +214,11 @@ function preprocessor(line,linenu){
     token=words[0].substr(0, words[0].length-1 );
     words.shift();
     if(!isNaN(token)){
-      mem_counter=parseInt(token);
+      var ntoken = parseInt(token);
+      if(ntoken<mem_counter) {
+        return -1;
+      }
+      mem_counter=ntoken;
     } else {
       if(label_name.indexOf(token)==-1){
         label_name.push(token);
@@ -192,6 +236,11 @@ function preprocessor(line,linenu){
   if(words[0]=="block" && words[1][0]!="#"){
     mem_counter=mem_counter+parseInt(words[1])-1;
   }
+  if(words[0]=="block" && words[1][1]=="\""){
+    mem_counter=mem_counter+(words[1].length-3);
+  }
+
+
 }
 
 
