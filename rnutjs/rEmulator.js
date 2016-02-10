@@ -279,7 +279,6 @@ function control_unit(input){
     instruction.push("");
     instruction.push("");
     instruction.push("");
-    console.log(instruction);
     window[ "f_"+instruction[0] ] ( instruction[1],instruction[2],instruction[3] );
 }
 
@@ -332,17 +331,14 @@ function term_update_pixel(x,y,onoff){
     return;
   }
 
-  var new_data=[55,64,70];
   if(onoff){
-    new_data=[255,255,255];
+    context.fillStyle = "rgba(255,255,255,1)";
+  } else {
+    context.fillStyle = "rgba(55,64,70,1)";
   }
 
-  imgData.data[(y*192+x)*4+0]=new_data[0];
-  imgData.data[(y*192+x)*4+1]=new_data[1];
-  imgData.data[(y*192+x)*4+2]=new_data[2];
-  imgData.data[(y*192+x)*4+3]=255;
-
-	context.putImageData(imgData,0,0);
+  context.fillRect( x, y, 1, 1 );
+	//context.putImageData(imgData,0,0);
 
 }
 
@@ -372,7 +368,11 @@ function run_loop(timeout,first){
     return;
   }
   else{
-    stopper = setZeroTimeout(function(){ run_loop(timeout,0); });
+    //if((clock_count%3)==0) {
+      stopper = setZeroTimeout(function(){ run_loop(timeout,0); });
+    //} else {
+    //  run_loop(timeout,0);
+    //}
     //run_loop(timeout);
   }
 }

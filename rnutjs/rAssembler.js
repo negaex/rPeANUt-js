@@ -247,7 +247,6 @@ function run_assembler() {
            //alert(JSON.stringify(sp[block]));
            sp[block]="#\""+sp[block][2]+sp[block].slice(4,sp[block].length);
            lines.splice(j+offset+1,0,["\t\tblock #'"+last+"'",j]);
-           console.log("#'"+last+"'");
            offset++;
          }
          current = "\t\tblock #'"+sp[block][2]+"'"
@@ -257,8 +256,6 @@ function run_assembler() {
        }
      }
    }
-
-   console.log(JSON.stringify(lines));
 
   mem_counter=0;
   for (var j = 0; j < lines.length; j++) {
