@@ -91,10 +91,20 @@ function trap__i   ()              { interrupt(2); }
 function clock_i   ()              { interrupt(3); }
 
 function interrupt(address) {
-  if(SR.value ==2 || SR.value ==3 || SR.value ==5 || SR.value ==6){
+
+  // if interrupt mask is on
+  if((SR.value & 2) != 0){
     return;
   }
-  SP.value = SP.value +1; m_write(SP.value, PC.value); PC.value = address; SR.value = SR.value | (1<<1);
+  //push the current program counter to the stack
+  SP.value = SP.value +1;
+  m_write(SP.value, PC.value);
+
+  // jump to the interrupt handler address
+  PC.value = address;
+
+  // set the interrupt mask to 1
+  SR.value = SR.value | (1<<1);
 }
 
 
@@ -185,12 +195,19 @@ function r_read(register) {
 
 function m_read(address){
   if(address==0xFFF0){
-    terminal.status=0;
-    memory[0xFFF1]=0;
-    //terminal.status=terminal.status & 0x10;
-    //memory[0xFFF1]=terminal.status;
-    var ret = terminal.input;
-    terminal.input=0;
+    terminal.status=terminal.status | 0b10;
+    memory[0xFFF1]=terminal.status;
+    if(terminal.status & 0b01 == 1) {
+      var ret = terminal.input.shift(1);
+      if(terminal.input.length==0) {
+        terminal.status = terminal.status ^ 0b01;
+        memory[0xFFF1] = terminal.status;
+      }
+    } else {
+      ret = 0;
+    }
+    terminal.status=terminal.status ^ 0b10;
+    memory[0xFFF1]=terminal.status;
     return ret;
   }
   return memory[address];
@@ -228,7 +245,6 @@ function control_unit(input){
     var instruction=[];
 
     for(ij=0;ij<template[1].length;ij++){
-
       if(ij===0){instruction.push(template[0]);input=input.substring(template[1][0].length);continue;}
 
       var value = parseInt(input.substring(0,template[1][ij].length), 16);
@@ -263,24 +279,22 @@ function control_unit(input){
     instruction.push("");
     instruction.push("");
     instruction.push("");
+    console.log(instruction);
     window[ "f_"+instruction[0] ] ( instruction[1],instruction[2],instruction[3] );
-
 }
 
 function Terminal(){
   this.output=[];
-  this.input=0;
-  this.status=0x10;
+  this.input=[];
+  this.status=0b00;
 }
 
 var terminal = new Terminal();
 
 function update_screen(){
-  while(terminal.output.length>0){
-  if((terminal.status&0x10)==0x10){
+  if((terminal.status&0x10)!=0x10 && terminal.output.length>0){
     screen_write(String.fromCharCode(terminal.output.pop()));
   }
-}
 }
 
 function screen_write(char){
@@ -288,6 +302,9 @@ function screen_write(char){
 }
 
 function term_reset(){
+
+  terminal = new Terminal();
+  terminal.input = [];
 
 	for (var i=0;i<imgData.data.length/4;i+=1)
 	  {
@@ -371,8 +388,16 @@ function step(){
     stop();
     return 0;
   }
+
+  // Check for terminal input
+  if(interrupt_que==-1 && terminal.input.length>0 && (memory[0xFFF2] & 1 == 1) && ((SR.value & 2) == 0)) {
+    //alert(JSON.stringify(terminal.input));
+    interrupt_que = 1;
+  }
+
   if(interrupt_que>-1){
-    interrupt(interrupt_que);
+    var current_interrupt = interrupt_que;
+    interrupt(current_interrupt);
     interrupt_que=-1;
   }
   clock_count++;

@@ -4,7 +4,6 @@
 <!--<html xmlns="http://www.w3.org/1999/xhtml"i manifest="cache.manifest">-->
 	<head>
 
-
     <script>
       if ((document.location.hostname != "localhost") && (window.location.protocol != "https:"))
           window.location.protocol = "https";
@@ -185,13 +184,17 @@
 	$(document).ready(function(){editor.refresh(); show_regs();});
 
 	$('#terminal_s').keypress(function(event) {
+		terminal.status=terminal.status | 0b10;
 		event.preventDefault();
-		terminal.input=event.which;
-		terminal.status=terminal.status | 0x01;
+		terminal.input.push(event.which);
+		terminal.status=terminal.status | 0b01;
 		memory[0xFFF1]=terminal.status;
+
+		// if interrupts are set, then interrupt
     if( memory[0xFFF2] & 1 == 1){
       interrupt_que = 1;
     }
+		terminal.status=terminal.status ^ 0b10;
 	});
 
 	$('#terminal_s').keydown(function(event) {

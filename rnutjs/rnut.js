@@ -85,6 +85,7 @@ function reset() {
 
   $("#terminal_s").text('');
 
+
   for (i = 1; i <= memsize; i += 1) {
     memory.push(zero);
     memory_key.push("halt");
