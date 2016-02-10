@@ -1,5 +1,22 @@
 
 
+// DISCLAIMER! THIS CODE IS ALL A BIT OF AN AWFUL HACK, IS FULL OF BUGS AND IT
+// SHOULD BE FIXED. IT WAS WRITTEN BEFORE I KNEW OF OBJECTS, SYNTAX TREES AND
+// BEFORE I HAD LEARNED THE CONCEPT OF MODULARIZING CODE.
+// Signed: ***REMOVED***, ***REMOVED***
+
+
+
+
+
+
+
+
+
+
+
+
+
 //############################### assembly ###################################
 // converts assebly code to machine code.
 //
@@ -51,6 +68,19 @@ instr = {
              "A"  :"0x00000000"},
 };
 
+// First, checks if it isn't implemented yet.
+if (!String.prototype.format) {
+  String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) {
+      return typeof args[number] != 'undefined'
+        ? args[number]
+        : match
+      ;
+    });
+  };
+}
+
 var label_address=[];
 var label_name=[];
 
@@ -62,9 +92,9 @@ function run_assembler() {
   /* Order of assembly:
    *
    * 1. Split code by newlines
-   * 2. Replace #define values
-   * 3. Include #include files
-   * 4. Expand macros (not implemented yet)
+   * 2. Include #include files
+   * 3. Define #defines
+   * 4. Expand macros
    * 5. Resolve labels
    * 6. Assemble
    *
@@ -80,6 +110,7 @@ function run_assembler() {
   label_name=[];
 
   var code = editor.getValue();
+  code="\n"+code+"\n";
 
   // Split into lines.
   var codes=code.split("\n");
@@ -88,7 +119,7 @@ function run_assembler() {
   // Used for Error Codes. Eg: "Error at line XX".
   var lines=[];
   for(var ji=0;ji<codes.length;ji++){
-    lines.push([codes[ji],ji+1]);
+    lines.push([codes[ji],ji]);
   }
 
   //Check for #includes (quite messy! needs cleaning up)
@@ -120,30 +151,90 @@ function run_assembler() {
      j++;
    }
 
+   // CLEAN UP LINES, ADD LINE NUMBER FOR ERRORS
   var lines=[];
   for(var ji=0;ji<codes.length;ji++){
-   lines.push([codes[ji],ji+1]);
+    line = codes[ji];
+   line=line.match(/[^;]*/)[0];
+   line=line.replace(/ +(?= )/g,'');
+   line=line.replace(/\t+/g,' ');
+   line=line.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+   line=line.replace(" :",":");
+   lines.push([line,ji+1]);
+
+  }
+
+
+  // macros
+  var macros = {};
+  loop1:
+  for (var j=0; j<lines.length; j++) {
+
+    //alert("j: "+j+", lines: "+lines);
+    if(lines[j][0].toLowerCase()=="macro") {
+      for(var ji=j+1;ji<lines.length; ji++) {
+        if(lines[ji][0].toLowerCase()=="mend") {
+          var macro = lines.splice(j,ji-j+1);
+          var header = macro[1][0].split(" ");
+          var name = header.splice(0,1);
+          var args = header;
+          var body = macro.splice(2,macro.length-3);
+          macros[name] = {args:args, body:body}
+          continue loop1;
+        }
+      }
+      alert("Expected MEND");
+      return -1;
+    }
+    var line = lines[j][0].split(" ");
+    if(line==[""] || line=="" || line==null) {continue;}
+    var maddr = "";
+    if(line[0].slice(-1)==":") {maddr = line[0]; line = line.splice(1)}
+    if(line[0] in macros) {
+      // We've hit a macro!
+      var name = line[0];
+      var args = line.splice(1);
+      var macro = macros[name];
+      if(args.length != macro.args.length) {
+        alert("ParseException on line "+": "+"\nCalling macro with wrong number of arguments.");
+        return -1;
+      }
+      lines[j][0] = maddr;
+      for(var ji = 0; ji<macro.body.length;ji++) {
+        var ln = macro.body[ji][0];
+        for(var arg = 0; arg<args.length; arg++) {
+          ln = ln.replace(macro.args[arg]+" ",args[arg]+" ");
+        }
+        for(var arg = 0; arg<args.length; arg++) {
+          ln = ln.replace(macro.args[arg],args[arg]);
+        }
+        lines.splice(j+1,0,[ln,macro.body[ji][1]]);
+        j++;
+      }
+    }
+
+
   }
 
 
   // Loop through each line and pre-process it, resolving labels
-  for (j = 0; j < codes.length; j++) {
-     var ret = preprocessor(codes[j],lines[j][1]);
+  for (j = 0; j < lines.length; j++) {
+     var ret = preprocessor(lines[j][0],lines[j][1]);
      if(ret==-1) {
-       alert("ParseException on line "+lines[j][1]+": "+codes[j]+"\nGoing back! (Your code appears to be trying to assemble into memory that has already passed)");
-       return;
+       alert("ParseException on line "+lines[j][1]+": "+lines[j][0]+"\nGoing back! (Your code appears to be trying to assemble into memory that has already passed)");
+       return -1;
      }
      if(ret!==0){
       mem_counter++;
     }
    }
 
-   var copy = codes.length;
+   var copy = lines.length;
    var offset = 0;
    for(var j=0; j<copy; j++) {
-     line = codes[j+offset];
+     line = lines[j+offset][0];
      if(line==null) {continue;}
-     var sp = line.match(/\S+/g);
+     var sp = line.match(/(?:[^\s"]+|"[^"]*")+/g)
      if(sp==null) {continue;}
      var block = 0;
      if(sp[0]=="block") {block=1}
@@ -152,28 +243,26 @@ function run_assembler() {
        if (sp[block].substring(0,2)=="#\"") {
          var oldoff=offset;
          while(sp[block].length>4) {
-           last = sp[block].slice(-2,-1);
-           sp[block]=sp[block].slice(0,-2)+"\"";
-           codes.splice(j+offset+1,0,"\t\tblock #'"+last+"''");
-           lines.splice(j+offset+1,0,["\t\tblock #''"+last+"'",j]);
+           last = sp[block].slice(3,4);
+           //alert(JSON.stringify(sp[block]));
+           sp[block]="#\""+sp[block][2]+sp[block].slice(4,sp[block].length);
+           lines.splice(j+offset+1,0,["\t\tblock #'"+last+"'",j]);
+           console.log("#'"+last+"'");
            offset++;
          }
-         current=sp[0];
-         if(block=2) {current+=" "+sp[1];}
-         current+=" #'"+sp[block][2]+"'";
-         codes[j+oldoff]=current;
+         current = "\t\tblock #'"+sp[block][2]+"'"
+         if(block==2) {current = sp[0] + current; }
          lines[j+oldoff]=[current,j];
-         codes.splice(j+offset+1,0,"halt");
          lines.splice(j+offset+1,0,["halt",j]);
-         offset++;
        }
      }
    }
 
+   console.log(JSON.stringify(lines));
 
   mem_counter=0;
-  for (var j = 0; j < codes.length; j++) {
-     var tmp = assemble(codes[j],lines[j][1]);
+  for (var j = 0; j < lines.length; j++) {
+     var tmp = assemble(lines[j][0],lines[j][1]);
      if(tmp==-2){
        return;
      }
@@ -229,6 +318,7 @@ function preprocessor(line,linenu){
     }
   }
 
+
   if(words==''){
     return 0;
   }
@@ -276,6 +366,13 @@ function token_type(token,linenu){
       obj_token.value = token[1].charCodeAt(0).toString(16).toUpperCase();
     }
     else{
+      if(label_name.indexOf(token)>-1) {
+        token = "0x"+label_address[label_name.indexOf(token)];
+      }
+      if(isNaN(token)) {
+        alert("Unknown symbol: "+token)
+        return -1;
+      }
       obj_token.value=two_comp(parseInt(token));
     }
     while(obj_token.value.length<4){
@@ -302,7 +399,7 @@ function assemble (line,linenu) {
     line=line.replace(" :",":");
 
     //var words = line.split(" ");
-    var words = line.match(/'[^"]*'|[^\s"]+/g);
+    var words = line.match(/(?:[^\s']+|'[^']*')+/g);
     var mac="";
 
     //ignore empty lines

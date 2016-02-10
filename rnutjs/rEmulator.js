@@ -176,10 +176,19 @@ function r_write(register, value){
   }
 }
 
+function r_read(register) {
+  if(register.value!=null) {
+    return register.value;
+  }
+  return 0;
+}
+
 function m_read(address){
   if(address==0xFFF0){
-    terminal.status=terminal.status & 0x10;
-    memory[0xFFF1]=terminal.status;
+    terminal.status=0;
+    memory[0xFFF1]=0;
+    //terminal.status=terminal.status & 0x10;
+    //memory[0xFFF1]=terminal.status;
     var ret = terminal.input;
     terminal.input=0;
     return ret;
