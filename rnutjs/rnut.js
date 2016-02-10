@@ -265,6 +265,9 @@ function show_memory () {
      if(j==PC.value){row.className="selected";
      //$('#selectable').scrollTop(0);
      }
+     if(memory_break[j]) {
+       $(row).addClass("breaker");
+     }
      var cell0 = row.insertCell(0);
      cell0.className="register-ignore";
      var cell1 = row.insertCell(1);
