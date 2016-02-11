@@ -23,20 +23,24 @@ var current_is_showing=0;
 var files=localStorage.getItem("files");
 
 if(files===null||files.length===0){
-  files=["cat"];
+  files=["HelloWorld"];
   localStorage.setItem("files",files);
-  localStorage.setItem("f-cat"," \n\
-; This program prints the input \n\
+  localStorage.setItem("f-HelloWorld",";; Hello World\n\
 \n\
-0x0100: load 0xFFF1 R0 \n\
-\tand R0 ONE R0 \n\
-\tpush ONE \n\
-\tjumpnz R0 0x200 \n\
-\tjump 0x100 \n\
-  \n\
-0x0200: load 0xFFF0 R0 \n\
-\tstore R0 0xFFF0 \n\
-\tjump 0x100");
+\n\
+0x100:\n\
+\n\
+\tload\t#string R0	; Start at first character\n\
+loop: load\tR0 R1		; Load character into R1\n\
+\tjumpz\tR1 end		; Check for end of string\n\
+\tstore\tR1 0xFFF0	; Print character\n\
+\tadd\tONE R0 R0	; Go to next character\n\
+\tjump\tloop\n\
+\n\
+end:	halt\n\
+\n\
+\n\
+string: block #\"Hello World!\"");
 }
 else {files=files.split(",");}
 

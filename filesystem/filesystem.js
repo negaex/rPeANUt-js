@@ -7,19 +7,24 @@ var current_is_showing=0;
 var files=localStorage.getItem("files");
 
 if(files===null||files.length===0){
-  files=["Cat.rpe"];
+  files=["HelloWorld"];
   localStorage.setItem("files",files);
-  localStorage.setItem("f-Cat.rpe"," \n\
-; This program prints the input \n\
+  localStorage.setItem("f-HelloWorld",";; Hello World \n\
 \n\
-0x0100: load 0xFFF1 R0 \n\
-\tand R0 ONE R0 \n\
-\tjumpnz R0 0x200 \n\
-\tjump 0x100 \n\
-  \n\
-0x0200: load 0xFFF0 R0 \n\
-\tstore R0 0xFFF0 \n\
-\tjump 0x100");
+\n\
+0x100: \n\
+\n\
+\t\tload\t#string R0\t; Start at first character \n\
+loop:\tload\tR0 R1\t\t; Load character into R1 \n\
+\t\tjumpz\tR1 end\t\t; Check for end of string \n\
+\t\tstore\tR1 0xFFF0\t; Print character \n\
+\t\tadd\t\tONE R0 R0\t; Go to next character \n\
+\t\tjump\tloop \n\
+\n\
+end:\thalt \n\
+\n\
+\n\
+string: block #\"Hello World!\"");
 }
 else {files=files.split(",");}
 
@@ -44,7 +49,7 @@ function fs_save(filename, content) {
 function fs_open(filename) {
   var cookieval = localStorage.getItem("f-"+filename);
   if(cookieval===null || cookieval.length===0){
-    return -1;
+    return "";
   }
   return cookieval;
 }

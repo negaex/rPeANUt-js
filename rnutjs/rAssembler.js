@@ -33,16 +33,34 @@
 
 instr = {
   "halt":   {""   :"0x00000000"},
-  "add":    {"RRR":"0x1%0%1%20000"},
-  "sub":    {"RRR":"0x2%0%1%20000"},
-  "mult":   {"RRR":"0x3%0%1%20000"},
-  "div":    {"RRR":"0x4%0%1%20000"},
-  "mod":    {"RRR":"0x5%0%1%20000"},
-  "and":    {"RRR":"0x6%0%1%20000"},
-  "or":     {"RRR":"0x7%0%1%20000"},
-  "xor":    {"RRR":"0x8%0%1%20000"},
-  "neg":    {"RR" :"0xA0%0%10000"},                                             // RD <- - RS
-  "not":    {"RR" :"0xA1%0%10000"},                                             // RD <- ~ RS
+  "add":    {"RRR":"0x1%0%1%20000",
+             "VRR":"0x1E%1%2%0",
+             "RVR":"0x1%0E%2%1"},
+  "sub":    {"RRR":"0x2%0%1%20000",
+             "VRR":"0x2E%1%2%0",
+             "RVR":"0x2%0E%2%1"},
+  "mult":   {"RRR":"0x3%0%1%20000",
+             "VRR":"0x3E%1%2%0",
+             "RVR":"0x3%0E%2%1"},
+  "div":    {"RRR":"0x4%0%1%20000",
+             "VRR":"0x4E%1%2%0",
+             "RVR":"0x4%0E%2%1"},
+  "mod":    {"RRR":"0x5%0%1%20000",
+             "VRR":"0x5E%1%2%0",
+             "RVR":"0x5%0E%2%1"},
+  "and":    {"RRR":"0x6%0%1%20000",
+             "VRR":"0x6E%1%2%0",
+             "RVR":"0x6%0E%2%1"},
+  "or":     {"RRR":"0x7%0%1%20000",
+             "VRR":"0x7E%1%2%0",
+             "RVR":"0x7%0E%2%1"},
+  "xor":    {"RRR":"0x8%0%1%20000",
+             "VRR":"0x8E%1%2%0",
+             "RVR":"0x8%0E%2%1"},
+  "neg":    {"RR" :"0xA0%0%10000",
+             "VR" :"0xA0E%1%0"},
+  "not":    {"RR" :"0xA1%0%10000",
+             "VR" :"0xA1E%1%0"},                                                 // RD <- ~ RS
   "move":   {"RR" :"0xA2%0%10000"},                                             // RD <- RS
   "call":   {"A"  :"0xA300%0"},                                                 // SP <- SP +1, mem[SP] <- PC, PC <- address
   "return": {""   :"0xA3010000"},                                               // PC <- mem[SP], SP <- SP-1
@@ -160,7 +178,7 @@ function run_assembler() {
    line=line.replace(/\t+/g,' ');
    line=line.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
    line=line.replace(" :",":");
-   lines.push([line,ji+1]);
+   lines.push([line,ji]);
 
   }
 
@@ -367,10 +385,10 @@ function token_type(token,linenu){
         token = "0x"+label_address[label_name.indexOf(token)];
       }
       if(isNaN(token)) {
-        alert("Unknown symbol: "+token)
+        alert("ParseException at line "+linenu+".\nUnrecognized symbol: "+token);
         return -1;
       }
-      obj_token.value=two_comp(parseInt(token));
+      obj_token.value=two_comp(parseInt(token)%Math.pow(2,16));
     }
     while(obj_token.value.length<4){
       obj_token.value = "0"+obj_token.value;

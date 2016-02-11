@@ -18,16 +18,16 @@
 
 var instr_inv = {
   "0x0":        ["halt",    ["0x0"]],
-  "0x1":        ["add",     ["0x1","R","R","R"]],
-  "0x2":        ["sub",     ["0x2","R","R","R"]],
-  "0x3":        ["mult",    ["0x3","R","R","R"]],
-  "0x4":        ["div",     ["0x4","R","R","R"]],
-  "0x5":        ["mod",     ["0x5","R","R","R"]],
-  "0x6":        ["and",     ["0x6","R","R","R"]],
-  "0x7":        ["or",      ["0x7","R","R","R"]],
-  "0x8":        ["xor",     ["0x8","R","R","R"]],
-  "0xA0":       ["neg",     ["0xA0","R","R"]],
-  "0xA1":       ["not",     ["0xA1","R","R"]],
+  "0x1":        ["add",     ["0x1","R","R","R","VALU"]],
+  "0x2":        ["sub",     ["0x2","R","R","R","VALU"]],
+  "0x3":        ["mult",    ["0x3","R","R","R","VALU"]],
+  "0x4":        ["div",     ["0x4","R","R","R","VALU"]],
+  "0x5":        ["mod",     ["0x5","R","R","R","VALU"]],
+  "0x6":        ["and",     ["0x6","R","R","R","VALU"]],
+  "0x7":        ["or",      ["0x7","R","R","R","VALU"]],
+  "0x8":        ["xor",     ["0x8","R","R","R","VALU"]],
+  "0xA0":       ["neg",     ["0xA0","R","R","VALU"]],
+  "0xA1":       ["not",     ["0xA1","R","R","VALU"]],
   "0xA2":       ["move",    ["0xA2","R","R"]],                               // RD <- RS
   "0xA300":     ["call",    ["0xA300","ADDR"]],                                     // SP <- SP +1, mem[SP] <- PC, PC <- address
   "0xA3010000": ["return",  ["0xA3010000"]],                                      // PC <- mem[SP], SP <- SP-1
@@ -51,38 +51,38 @@ var instr_inv = {
   "0xD3":       ["store_2", ["0xD3","R","R","VALU"]],                            // mem[RDA+ext(value)] <- RS
 };
 
-function f_halt   ()              {halted=true;}
-function f_add    (RS1, RS2, RD)  { r_write(RD, RS1.value + RS2.value);}
-function f_sub    (RS1, RS2, RD)  { r_write(RD, RS1.value - RS2.value);}
-function f_mult   (RS1, RS2, RD)  { r_write(RD, RS1.value * RS2.value);}
-function f_div    (RS1, RS2, RD)  { r_write(RD, Math.floor(RS1.value / RS2.value) );}
-function f_mod    (RS1, RS2, RD)  { r_write(RD, RS1.value % RS2.value);}
-function f_and    (RS1, RS2, RD)  { r_write(RD, b_and(RS1.value, RS2.value));}
-function f_or     (RS1, RS2, RD)  { r_write(RD, b_or(RS1.value, RS2.value) );}
-function f_xor    (RS1, RS2, RD)  { r_write(RD, b_xor(RS1.value, RS2.value));}
-function f_neg    (RS, RD)        { r_write(RD, (0xFFFFFFFF+RS1.value) ^ 0xFFFFFFFF);}
-function f_not    (RS, RD)        { r_write(RD, ~ RS.value);}
-function f_move   (RS, RD)        { r_write(RD, RS.value);}
+function f_halt   ()              { halted=true; }
+function f_add    (RS1, RS2, RD)  { r_write(RD, r_read(RS1) + r_read(RS2));}
+function f_sub    (RS1, RS2, RD)  { r_write(RD, r_read(RS1) - r_read(RS2));}
+function f_mult   (RS1, RS2, RD)  { r_write(RD, r_read(RS1) * r_read(RS2));}
+function f_div    (RS1, RS2, RD)  { r_write(RD, Math.floor(r_read(RS1) / r_read(RS2)) );}
+function f_mod    (RS1, RS2, RD)  { r_write(RD, r_read(RS1) % r_read(RS2));}
+function f_and    (RS1, RS2, RD)  { r_write(RD, b_and(r_read(RS1), r_read(RS2)));}
+function f_or     (RS1, RS2, RD)  { r_write(RD, b_or(r_read(RS1), r_read(RS2)) );}
+function f_xor    (RS1, RS2, RD)  { r_write(RD, b_xor(r_read(RS1), r_read(RS2)));}
+function f_neg    (RS, RD)        { r_write(RD, (0xFFFFFFFF+r_read(RS)) ^ 0xFFFFFFFF);}
+function f_not    (RS, RD)        { r_write(RD, ~ r_read(RS));}
+function f_move   (RS, RD)        { r_write(RD, r_read(RS));}
 function f_call   (address)       { SP.value = SP.value+1; m_write(SP.value, PC.value+1); PC.value = address-1;}
 function f_return ()              { PC.value = m_read(SP.value)-1;SP.value=SP.value-1;}
 function f_trap   ()              { PC.value++; trap__i(); }
 function f_jump   (address)       { PC.value = address-1;}
-function f_jumpz  (RS, address)   { if (RS.value === 0) { PC.value = address-1;} }
-function f_jumpn  (RS, address)   { if (RS.value < 0) { PC.value = address-1;} }
-function f_jumpnz (RS, address)   { if (RS.value !== 0) { PC.value = address-1; } }
+function f_jumpz  (RS, address)   { if (r_read(RS) === 0) { PC.value = address-1;} }
+function f_jumpn  (RS, address)   { if (r_read(RS) < 0) { PC.value = address-1;} }
+function f_jumpnz (RS, address)   { if (r_read(RS) !== 0) { PC.value = address-1; } }
 function f_reset  (bit)           { SR.value = SR.value & ~(1<<bit);}
 function f_set    (bit)           { SR.value = SR.value | (1<<bit);}
-function f_push   (RS)            { SP.value++; m_write(SP.value, RS.value); }
+function f_push   (RS)            { SP.value++; m_write(SP.value, r_read(RS)); }
 function f_pop    (RD)            { r_write( RD, m_read(SP.value)); SP.value--;}
-function f_rotate_0(RS,RD,value)  { r_write( RD, b_rotate(RS.value,value)); }
-function f_rotate_1(RA, RS, RD)   { r_write( RD, b_rotate(RS.value,RA.value)); }
+function f_rotate_0(RS,RD,value)  { r_write( RD, b_rotate(r_read(RS),value)); }
+function f_rotate_1(RA, RS, RD)   { r_write( RD, b_rotate(r_read(RS),r_read(RA))); }
 function f_load_0 (RD, value)     { r_write( RD, value);}
 function f_load_1 (RD,address)    { r_write( RD, m_read(address));}
-function f_load_2 (RSA, RD)       { r_write( RD, m_read(RSA.value));}
-function f_load_3 (RSA, RD, value){ r_write( RD, m_read(RSA.value+value));}
-function f_store_0(RS, address)   { m_write( address, RS.value);}
-function f_store_1(RS, RDA)       { m_write( RDA.value,RS.value);}
-function f_store_2(RS,RDA,value)  { m_write( RDA.value+value, RS.value);}
+function f_load_2 (RSA, RD)       { r_write( RD, m_read(r_read(RSA)));}
+function f_load_3 (RSA, RD, value){ r_write( RD, m_read(r_read(RSA)+value));}
+function f_store_0(RS, address)   { m_write( address, r_read(RS));}
+function f_store_1(RS, RDA)       { m_write( r_read(RDA),r_read(RS));}
+function f_store_2(RS,RDA,value)  { m_write( r_read(RDA)+value, r_read(RS));}
 
 
 function memac_i   ()              { interrupt(0); }
@@ -180,16 +180,25 @@ function cut(value, length){
 }
 
 function r_write(register, value){
-  if(register.permission=="wr" || register.permission=="w"){
+  if(register != null && register.permission!=null && (register.permission=="wr" || register.permission=="w")){
     value=cut(value,8);
     register.value=value;
   }
 }
 
 function r_read(register) {
-  if(register.value!=null) {
+  if(register!= null && register.value!=null) {
     return register.value;
   }
+  // TODO: stop running and set SR
+  return 0;
+}
+
+function r_read(register,value) {
+  if(register!= null && register.value!=null) {
+    return register.value;
+  }
+  // TODO: stop running and set SR
   return 0;
 }
 
@@ -244,6 +253,8 @@ function control_unit(input){
     if(template==""){return 0;}
     var instruction=[];
 
+    var E = {value:0,  permission: "r",  hex: "E"   };
+    var usingE = []
     for(ij=0;ij<template[1].length;ij++){
       if(ij===0){instruction.push(template[0]);input=input.substring(template[1][0].length);continue;}
 
@@ -252,7 +263,12 @@ function control_unit(input){
       switch(template[1][ij]) {
 
         case "R":
-           instr_add = register_obj[ register_names[value]];
+           if(value!=14) {
+             instr_add = register_obj[ register_names[value]];
+           } else {
+             instr_add = E;
+             usingE.push(ij);
+           }
           break;
 
         case "ADDR":
@@ -268,6 +284,7 @@ function control_unit(input){
             value=value-1-0xFFFF;
           }
           instr_add = value;
+          E.value = value;
           break;
 
       }
