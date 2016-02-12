@@ -101,9 +101,9 @@ if (!String.prototype.format) {
 
 var label_address=[];
 var label_name=[];
+var mem_counter = 0;
 
-
-function run_assembler() {
+function assembler(code, state) {
   "use strict";
 
 
@@ -119,15 +119,9 @@ function run_assembler() {
    */
 
 
-
-  stop();
-
-  reset();
-
   label_address=[];
   label_name=[];
 
-  var code = editor.getValue();
   code="\n"+code+"\n";
 
   // Split into lines.
@@ -234,10 +228,12 @@ function run_assembler() {
 
   }
 
-
+  mem_counter = 0;
   // Loop through each line and pre-process it, resolving labels
   for (j = 0; j < lines.length; j++) {
-     var ret = preprocessor(lines[j][0],lines[j][1]);
+     var retstate = preprocessor(lines[j][0],lines[j][1],state);
+     var ret = retstate.ret;
+      state = retstate.state;
      if(ret==-1) {
        alert("ParseException on line "+lines[j][1]+": "+lines[j][0]+"\nGoing back! (Your code appears to be trying to assemble into memory that has already passed)");
        return -1;
@@ -275,27 +271,30 @@ function run_assembler() {
      }
    }
 
-  mem_counter=0;
-  for (var j = 0; j < lines.length; j++) {
-     var tmp = assemble(lines[j][0],lines[j][1]);
-     if(tmp==-2){
-       return;
+   mem_counter=0;
+   for (var j = 0; j < lines.length; j++) {
+      var retstate = assemble(lines[j][0],lines[j][1], state);
+      var tmp = retstate.ret;
+      state = retstate.state;
+      if(tmp==-2){
+        return;
+      }
+      if(tmp!==-1){
+        state.memory[mem_counter]=tmp;
+       mem_counter++;
      }
-     if(tmp!==-1){
-       memory[mem_counter]=tmp;
-      mem_counter++;
     }
-   }
 
 
-  PC.value=256;
-  show_memory();
+
+  return state;
+
 
 }
 
 
 // Resolves labels.
-function preprocessor(line,linenu){
+function preprocessor(line,linenu,state){
   line=line.match(/[^;]*/)[0];
   line=line.replace(/ +(?= )/g,'');
   line=line.replace(/\t+/g,' ');
@@ -310,7 +309,7 @@ function preprocessor(line,linenu){
 
   //ignore empty lines
   if(words===null){
-    return 0;
+    return {ret : 0, state : state};
   }
 
   // Take care of code jumps
@@ -320,13 +319,13 @@ function preprocessor(line,linenu){
     if(!isNaN(token)){
       var ntoken = parseInt(token);
       if(ntoken<mem_counter) {
-        return -1;
+        return {ret : -1, state : state};
       }
       mem_counter=ntoken;
     } else {
       if(label_name.indexOf(token)==-1){
         label_name.push(token);
-        memory_label[mem_counter]=token;
+        state.memory_label[mem_counter]=token;
         label_address.push(fix_len(mem_counter.toString(16),4));
       } else{label_address[label_name.indexOf(token)]=mem_counter;
       }
@@ -335,7 +334,7 @@ function preprocessor(line,linenu){
 
 
   if(words==''){
-    return 0;
+    return {ret : 0, state : state};
   }
 
   if(words[0]=="block" && words[1][0]!="#"){
@@ -345,6 +344,7 @@ function preprocessor(line,linenu){
     mem_counter=mem_counter+(words[1].length-3);
   }
 
+  return {ret : 1, state : state};
 
 }
 
@@ -354,14 +354,14 @@ function Token(type, value){
   this.value=value;
 }
 
-function token_type(token,linenu){
+function token_type(token,linenu,state){
   var obj_token = new Token("halt",token);
   if(token == ""){ //Change === to ==
     return  obj_token;
   } else
-  if(token in register_obj){
+  if(token in state.registers){
     obj_token.type="R";
-    obj_token.value=register_obj[token].hex;
+    obj_token.value=state.registers[token].hex;
   } else
   if(token in bit_index_in_sr){
     obj_token.type="B";
@@ -406,7 +406,7 @@ function token_type(token,linenu){
 }
 
 
-function assemble (line,linenu) {
+function assemble (line,linenu,state) {
     line=line.match(/[^;]*/)[0];
     line=line.replace(/ +(?= )/g,'');
     line=line.replace(/\t+/g,' ');
@@ -419,7 +419,7 @@ function assemble (line,linenu) {
 
     //ignore empty lines
     if(words===null){
-      return -1;
+      return {ret : -1, state : state};
     }
 
     // Take care of code jumps
@@ -432,16 +432,16 @@ function assemble (line,linenu) {
     }
 
     if(words==''){
-      return -1;
+      return {ret : -1, state : state};
     }
 
     var template_m=[];
     var parameters=[];
     var inst = words[0];
     for(var i=1;i<words.length;i++){
-      obj_token = token_type(words[i],linenu);
+      obj_token = token_type(words[i],linenu,state);
       if(obj_token==-1){
-        return -2;
+        return {ret : -2, state : state};
       }
       template_m+=obj_token.type;
       parameters.push(obj_token.value);
@@ -457,17 +457,17 @@ function assemble (line,linenu) {
     template = template.replace("%1",parameters[1]);
     template = template.replace("%2",parameters[2]);
 
-    memory_key[mem_counter]=inst;
+    state.memory_key[mem_counter]=inst;
 
     //return parseInt(template,16);
     //return template;
 
     if(inst=="block" && template_m==["A"]){
       mem_counter=mem_counter+parseInt(parameters[0]);
-      return -1;
+      return {ret : -1, state : state};
     }
 
-    return parseInt(template);
+    return {ret : parseInt(template), state : state};
 
 }
 

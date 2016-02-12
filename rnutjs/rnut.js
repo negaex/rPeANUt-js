@@ -10,40 +10,43 @@
 
 */
 
-var R0=   {value:0,   permission: "wr", hex: "0"  };
-var R1=   {value:0,   permission: "wr", hex: "1"  };
-var R2=   {value:0,   permission: "wr", hex: "2"  };
-var R3=   {value:0,   permission: "wr", hex: "3"  };
-var R4=   {value:0,   permission: "wr", hex: "4"  };
-var R5=   {value:0,   permission: "wr", hex: "5"  };
-var R6=   {value:0,   permission: "wr", hex: "6"  };
-var R7=   {value:0,   permission: "wr", hex: "7"  };
-var SP=   {value:0,   permission: "wr", hex: "8"  };
-var SR=   {value:0,   permission: "wr", hex: "9"  };
-var PC=   {value:0,   permission: "wr", hex: "A"  };
-var IR=   {value:0,   permission: "",   hex: ""    };
-var ONE=  {value:1,   permission: "r",  hex: "B"   };
-var ZERO= {value:0,   permission: "r",  hex: "C"   };
-var MONE= {value:-1,  permission: "r",  hex: "D"   };
+var machine = {};
 
-var register_obj={
-  "R0": R0,
-  "R1": R1,
-  "R2": R2,
-  "R3": R3,
-  "R4": R4,
-  "R5": R5,
-  "R6": R6,
-  "R7": R7,
-  "SP": SP,
-  "SR": SR,
-  "PC": PC,
-  "ONE": ONE,
-  "ZERO": ZERO,
-  "MONE": MONE
+machine.R0=   {value:0,   permission: "wr", hex: "0"  };
+machine.R1=   {value:0,   permission: "wr", hex: "1"  };
+machine.R2=   {value:0,   permission: "wr", hex: "2"  };
+machine.R3=   {value:0,   permission: "wr", hex: "3"  };
+machine.R4=   {value:0,   permission: "wr", hex: "4"  };
+machine.R5=   {value:0,   permission: "wr", hex: "5"  };
+machine.R6=   {value:0,   permission: "wr", hex: "6"  };
+machine.R7=   {value:0,   permission: "wr", hex: "7"  };
+machine.SP=   {value:0,   permission: "wr", hex: "8"  };
+machine.SR=   {value:0,   permission: "wr", hex: "9"  };
+machine.PC=   {value:0,   permission: "wr", hex: "A"  };
+machine.IR=   {value:0,   permission: "",   hex: ""    };
+machine.ONE=  {value:1,   permission: "r",  hex: "B"   };
+machine.ZERO= {value:0,   permission: "r",  hex: "C"   };
+machine.MONE= {value:-1,  permission: "r",  hex: "D"   };
+
+
+machine.registers={
+  "R0": machine.R0,
+  "R1": machine.R1,
+  "R2": machine.R2,
+  "R3": machine.R3,
+  "R4": machine.R4,
+  "R5": machine.R5,
+  "R6": machine.R6,
+  "R7": machine.R7,
+  "SP": machine.SP,
+  "SR": machine.SR,
+  "PC": machine.PC,
+  "ONE": machine.ONE,
+  "ZERO": machine.ZERO,
+  "MONE": machine.MONE
 };
 
-var register_names=["R0","R1","R2","R3","R4","R5","R6","R7","SP","SR","PC","ONE","ZERO","MONE"];
+machine.register_names=["R0","R1","R2","R3","R4","R5","R6","R7","SP","SR","PC","ONE","ZERO","MONE"];
 
 
 var bit_names = ["OF", "IM", "TI"]
@@ -55,16 +58,16 @@ var bit_index_in_sr = {
 } // same as bit_name.index_of
 
 //MEMORY
-var memory = [], mem_counter=0;
-var memory_key = [];
-var memory_label = [];
-var memory_break = [];
-var memory_profiling = [];
+machine.memory = [];
+machine.memory_key = [];
+machine.memory_label = [];
+machine.memory_break = [];
+machine.memory_profiling = [];
 
 //CLOCK
-var clock_count=0;
+machine.clock=0;
 
-var interrupt_que=-1;
+machine.interrupt_que=-1;
 
 var stopper;
 var halted;
@@ -74,39 +77,38 @@ function reset() {
   "use strict";
   //var zero = "assemble("halt",-1)";
   var zero = 0x00000000, memsize = 16 * 16 * 16 * 16, i;
-  memory=[];
-  memory_key=[];
-  memory_label=[];
-  memory_break=[];
-  memory_profiling=[];
+  machine.memory = [];
+  machine.memory_key=[];
+  machine.memory_label=[];
+  machine.memory_break=[];
+  machine.memory_profiling=[];
 
-  clock_count=0;
-  interrupt_que=-1;
+  machine.clock=0;
+  machine.interrupt_que=-1;
 
   $("#terminal_s").text('');
 
 
   for (i = 1; i <= memsize; i += 1) {
-    memory.push(zero);
-    memory_key.push("halt");
-    memory_label.push("");
-    memory_break.push(0);
-    memory_profiling.push(0);
+    machine.memory.push(zero);
+    machine.memory_key.push("halt");
+    machine.memory_label.push("");
+    machine.memory_break.push(0);
+    machine.memory_profiling.push(0);
   }
-  memory[0xFFF0]=null;
-  mem_counter = 0;
+  machine.memory[0xFFF0] = null;
   halted=false;
-  R0.value=0;
-  R1.value=0;
-  R2.value=0;
-  R3.value=0;
-  R4.value=0;
-  R5.value=0;
-  R6.value=0;
-  R7.value=0;
-  SP.value=0x7000;
-  SR.value=0;
-  PC.value=256;
+  machine.R0.value=0;
+  machine.R1.value=0;
+  machine.R2.value=0;
+  machine.R3.value=0;
+  machine.R4.value=0;
+  machine.R5.value=0;
+  machine.R6.value=0;
+  machine.R7.value=0;
+  machine.SP.value=0x7000;
+  machine.SR.value=0;
+  machine.PC.value=256;
 
   show_regs();
 
@@ -153,11 +155,11 @@ function two_comp (number){
 }
 
 function set_break(address){
-  if(memory_break[address]){
-    memory_break[address]=0;
+  if(machine.memory_break[address]){
+    machine.memory_break[address]=0;
   }
   else{
-    memory_break[address]=1;
+    machine.memory_break[address]=1;
   }
   update_break(address);
 }
@@ -190,13 +192,13 @@ function update_current () {
     if($(row).hasClass("selected")){
       $(row).removeClass("selected");
       address=parseInt(row.cells[2].innerHTML,16);
-      if(memory_profiling[address]>0){
-        row.cells[0].innerHTML = memory_profiling[address];
+      if(machine.memory_profiling[address]>0){
+        row.cells[0].innerHTML = machine.memory_profiling[address];
       }
       done++;
     }
     address=parseInt(row.cells[2].innerHTML,16);
-    if(address==PC.value){
+    if(address==machine.PC.value){
       $(row).addClass("selected");
       done++;
     }
@@ -211,11 +213,11 @@ function update_value (address_in) {
     row=table.rows[i];
     address=parseInt(row.cells[2].innerHTML,16);
     if(address==address_in){
-      if(memory_profiling[address_in]>0){
-        row.cells[0].innerHTML = memory_profiling[address_in];
+      if(machine.memory_profiling[address_in]>0){
+        row.cells[0].innerHTML = machine.memory_profiling[address_in];
       }
-      row.cells[3].innerHTML = print(memory[address_in],8);
-      row.cells[4].innerHTML = memory_key[address_in];
+      row.cells[3].innerHTML = print(machine.memory[address_in],8);
+      row.cells[4].innerHTML = machine.memory_key[address_in];
       return;
     }
     if(address>address_in){
@@ -226,12 +228,12 @@ function update_value (address_in) {
       cell2 = row.insertCell(2);
       cell3 = row.insertCell(3);
       cell4 = row.insertCell(4);
-      if(memory_profiling[address_in]>0){
-        cell0.innerHTML = memory_profiling[address_in];
+      if(machine.memory_profiling[address_in]>0){
+        cell0.innerHTML = machine.memory_profiling[address_in];
       }
       cell2.innerHTML = print(address_in, 4);
-      cell3.innerHTML = print(memory[address_in],8);
-      cell4.innerHTML = memory_key[address_in];
+      cell3.innerHTML = print(machine.memory[address_in],8);
+      cell4.innerHTML = machine.memory_key[address_in];
       return;
     }
   }
@@ -242,12 +244,12 @@ function update_value (address_in) {
     cell2 = row.insertCell(2);
     cell3 = row.insertCell(3);
     cell4 = row.insertCell(4);
-    if(memory_profiling[address_in]>0){
-      cell0.innerHTML = memory_profiling[address_in];
+    if(machine.memory_profiling[address_in]>0){
+      cell0.innerHTML = machine.memory_profiling[address_in];
     }
     cell2.innerHTML = print(address_in, 4);
-    cell3.innerHTML = print(memory[address_in],8);
-    cell4.innerHTML = memory_key[address_in];
+    cell3.innerHTML = print(machine.memory[address_in],8);
+    cell4.innerHTML = machine.memory_key[address_in];
     return;
 }
 
@@ -260,12 +262,12 @@ function show_memory () {
 
 
   for (var j = 0; j < 0x8000; j++) {
-    if(memory[j]!="0x00000000" || last>0){
+    if(machine.memory[j]!="0x00000000" || last>0){
      var row = table.insertRow(table.rows.length);
-     if(j==PC.value){row.className="selected";
+     if(j==machine.PC.value){row.className="selected";
      //$('#selectable').scrollTop(0);
      }
-     if(memory_break[j]) {
+     if(machine.memory_break[j]) {
        $(row).addClass("breaker");
      }
      var cell0 = row.insertCell(0);
@@ -274,15 +276,15 @@ function show_memory () {
      var cell2 = row.insertCell(2);
      var cell3 = row.insertCell(3);
      var cell4 = row.insertCell(4);
-     if(memory_profiling[j]>0){
-       cell0.innerHTML = memory_profiling[j];
+     if(machine.memory_profiling[j]>0){
+       cell0.innerHTML = machine.memory_profiling[j];
      }
-     cell1.innerHTML = memory_label[j];
+     cell1.innerHTML = machine.memory_label[j];
      cell2.innerHTML = print(j, 4);
-     cell3.innerHTML = print(memory[j],8);
-     cell4.innerHTML = memory_key[j];
+     cell3.innerHTML = print(machine.memory[j],8);
+     cell4.innerHTML = machine.memory_key[j];
 
-     if(memory[j]!="0x00000000"){
+     if(machine.memory[j]!="0x00000000"){
        last=2;
      } else {
        last--;
@@ -310,14 +312,32 @@ function show_regs () {
      var row = table.insertRow(i);
      var cell1 = row.insertCell(0);
      var cell2 = row.insertCell(1);
-     var name = register_names[i];
+     var name = machine.register_names[i];
      if(i==10){cell1.className="register-last register";cell2.className="register-last register-ignore";}
      else{cell1.className="register";}
      cell1.innerHTML = name;
      if(i>7 && i<10){cell2.className="register-ignore";}
-     cell2.innerHTML = print(register_obj[name].value, 8);
+     cell2.innerHTML = print(machine.registers[name].value, 8);
   }
 
 
   return 0;
+}
+
+
+
+
+
+
+
+
+function run_assembler() {
+
+  stop();
+
+  reset();
+
+  machine = assembler(editor.getValue(), machine);
+
+  show_memory();
 }

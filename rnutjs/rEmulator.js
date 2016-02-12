@@ -63,17 +63,17 @@ function f_xor    (RS1, RS2, RD)  { r_write(RD, b_xor(r_read(RS1), r_read(RS2)))
 function f_neg    (RS, RD)        { r_write(RD, (0xFFFFFFFF+r_read(RS)) ^ 0xFFFFFFFF);}
 function f_not    (RS, RD)        { r_write(RD, ~ r_read(RS));}
 function f_move   (RS, RD)        { r_write(RD, r_read(RS));}
-function f_call   (address)       { SP.value = SP.value+1; m_write(SP.value, PC.value+1); PC.value = address-1;}
-function f_return ()              { PC.value = m_read(SP.value)-1;SP.value=SP.value-1;}
-function f_trap   ()              { PC.value++; trap__i(); }
-function f_jump   (address)       { PC.value = address-1;}
-function f_jumpz  (RS, address)   { if (r_read(RS) === 0) { PC.value = address-1;} }
-function f_jumpn  (RS, address)   { if (r_read(RS) < 0) { PC.value = address-1;} }
-function f_jumpnz (RS, address)   { if (r_read(RS) !== 0) { PC.value = address-1; } }
-function f_reset  (bit)           { SR.value = SR.value & ~(1<<bit);}
-function f_set    (bit)           { SR.value = SR.value | (1<<bit);}
-function f_push   (RS)            { SP.value++; m_write(SP.value, r_read(RS)); }
-function f_pop    (RD)            { r_write( RD, m_read(SP.value)); SP.value--;}
+function f_call   (address)       { machine.SP.value = machine.SP.value+1; m_write(machine.SP.value, machine.PC.value+1); machine.PC.value = address-1;}
+function f_return ()              { machine.PC.value = m_read(machine.SP.value)-1;machine.SP.value=machine.SP.value-1;}
+function f_trap   ()              { machine.PC.value++; trap__i(); }
+function f_jump   (address)       { machine.PC.value = address-1;}
+function f_jumpz  (RS, address)   { if (r_read(RS) === 0) { machine.PC.value = address-1;} }
+function f_jumpn  (RS, address)   { if (r_read(RS) < 0) { machine.PC.value = address-1;} }
+function f_jumpnz (RS, address)   { if (r_read(RS) !== 0) { machine.PC.value = address-1; } }
+function f_reset  (bit)           { machine.SR.value = machine.SR.value & ~(1<<bit);}
+function f_set    (bit)           { machine.SR.value = machine.SR.value | (1<<bit);}
+function f_push   (RS)            { machine.SP.value++; m_write(machine.SP.value, r_read(RS)); }
+function f_pop    (RD)            { r_write( RD, m_read(machine.SP.value)); machine.SP.value--;}
 function f_rotate_0(RS,RD,value)  { r_write( RD, b_rotate(r_read(RS),value)); }
 function f_rotate_1(RA, RS, RD)   { r_write( RD, b_rotate(r_read(RS),r_read(RA))); }
 function f_load_0 (RD, value)     { r_write( RD, value);}
@@ -93,18 +93,18 @@ function clock_i   ()              { interrupt(3); }
 function interrupt(address) {
 
   // if interrupt mask is on
-  if((SR.value & 2) != 0){
+  if((machine.SR.value & 2) != 0){
     return;
   }
   //push the current program counter to the stack
-  SP.value = SP.value +1;
-  m_write(SP.value, PC.value);
+  machine.SP.value = machine.SP.value +1;
+  m_write(machine.SP.value, machine.PC.value);
 
   // jump to the interrupt handler address
-  PC.value = address;
+  machine.PC.value = address;
 
   // set the interrupt mask to 1
-  SR.value = SR.value | (1<<1);
+  machine.SR.value = machine.SR.value | (1<<1);
 }
 
 
@@ -205,21 +205,21 @@ function r_read(register,value) {
 function m_read(address){
   if(address==0xFFF0){
     terminal.status=terminal.status | 0b10;
-    memory[0xFFF1]=terminal.status;
+    machine.memory[0xFFF1]=terminal.status;
     if(terminal.status & 0b01 == 1) {
       var ret = terminal.input.shift(1);
       if(terminal.input.length==0) {
         terminal.status = terminal.status ^ 0b01;
-        memory[0xFFF1] = terminal.status;
+        machine.memory[0xFFF1] = terminal.status;
       }
     } else {
       ret = 0;
     }
     terminal.status=terminal.status ^ 0b10;
-    memory[0xFFF1]=terminal.status;
+    machine.memory[0xFFF1]=terminal.status;
     return ret;
   }
-  return memory[address];
+  return machine.memory[address];
 }
 
 function m_write(address, value){
@@ -228,8 +228,8 @@ function m_write(address, value){
     update_screen();
     return;
   }
-  memory[address]=value;
-  memory_key[address]="";
+  machine.memory[address]=value;
+  machine.memory_key[address]="";
   if(notfast){
     update_value (address);
   }
@@ -264,7 +264,7 @@ function control_unit(input){
 
         case "R":
            if(value!=14) {
-             instr_add = register_obj[ register_names[value]];
+             instr_add = machine.registers[ machine.register_names[value]];
            } else {
              instr_add = E;
              usingE.push(ij);
@@ -333,7 +333,7 @@ function term_reset(){
 }
 
 function term_update_word(address) {
-  var data = memory[address];
+  var data = machine.memory[address];
   var x = ((address-0x7C40)*32)%192;
   var y = Math.floor((((address-0x7C40)*32)-x)/192);
   for(var i=0;i<32;i++){
@@ -374,7 +374,7 @@ function run(timeout){
 }
 
 function run_loop(timeout,first){
-  if(memory_break[PC.value]==1 && first===0){
+  if(machine.memory_break[machine.PC.value]==1 && first===0){
     stop();
     return;
   }
@@ -385,7 +385,7 @@ function run_loop(timeout,first){
     return;
   }
   else{
-    //if((clock_count%3)==0) {
+    //if((machine.clock%3)==0) {
       stopper = setZeroTimeout(function(){ run_loop(timeout,0); });
     //} else {
     //  run_loop(timeout,0);
@@ -407,24 +407,24 @@ function step(){
   }
 
   // Check for terminal input
-  if(interrupt_que==-1 && terminal.input.length>0 && (memory[0xFFF2] & 1 == 1) && ((SR.value & 2) == 0)) {
+  if(machine.interrupt_que==-1 && terminal.input.length>0 && (machine.memory[0xFFF2] & 1 == 1) && ((SR.value & 2) == 0)) {
     //alert(JSON.stringify(terminal.input));
-    interrupt_que = 1;
+    machine.interrupt_que = 1;
   }
 
-  if(interrupt_que>-1){
-    var current_interrupt = interrupt_que;
+  if(machine.interrupt_que>-1){
+    var current_interrupt = machine.interrupt_que;
     interrupt(current_interrupt);
-    interrupt_que=-1;
+    machine.interrupt_que=-1;
   }
-  clock_count++;
-  memory_profiling[PC.value]++;
-  var data = memory[PC.value];
+  machine.clock++;
+  machine.memory_profiling[machine.PC.value]++;
+  var data = machine.memory[machine.PC.value];
   data_s=print(data);
   var rcode=control_unit(data_s);
-  PC.value++;
-  if(SR.value==4 || SR.value==5 || SR.value==6 || SR.value==7){
-    if(clock_count%1000===0 && clock_count!==0){
+  machine.PC.value++;
+  if(machine.SR.value==4 || machine.SR.value==5 || machine.SR.value==6 || machine.SR.value==7){
+    if(machine.clock%1000===0 && machine.clock!==0){
       clock_i();
     }
   }
