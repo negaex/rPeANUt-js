@@ -20,7 +20,7 @@ Preview
 =======
 
 Image 1: Preview of running program.
-![alt tag](https://raw.githubusercontent.com/***REMOVED***/rnutjs/master/preview0.png)
+![alt tag](https://raw.githubusercontent.com/***REMOVED***/rnutjs/master/resources/previews/preview0.png)
 
 Image 2: Preview of file storage.
-![alt tag](https://raw.githubusercontent.com/***REMOVED***/rnutjs/master/preview1.png)
+![alt tag](https://raw.githubusercontent.com/***REMOVED***/rnutjs/master/resources/previews/preview1.png)
