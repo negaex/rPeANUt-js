@@ -1,4 +1,4 @@
 before_script:
-  - sudo $(type -P npm) install -g grunt
+  - sudo $(type -P npm) install grunt --save-dev
 
 script: grunt test --verbose --force
