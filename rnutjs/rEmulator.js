@@ -374,7 +374,7 @@ function run(timeout){
 }
 
 function run_loop(timeout,first){
-  if(machine.memory_break[machine.PC.value]==1 && first===0){
+  if((machine.memory_break[machine.PC.value]==1 && first===0) || !running){
     stop();
     return;
   }

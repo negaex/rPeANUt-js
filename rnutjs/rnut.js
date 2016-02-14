@@ -337,7 +337,12 @@ function run_assembler() {
 
   reset();
 
-  machine = assembler(editor.getValue(), machine);
+  var assembled_machine = Assembler.run(editor.getValue(), machine);
 
+  if(assembled_machine==-1) {
+    return;
+  }
+
+  machine = assembled_machine;
   show_memory();
 }
