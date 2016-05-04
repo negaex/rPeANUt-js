@@ -1,5 +1,5 @@
-# rnutjs
-rnutjs is a web-based IDE, assembler and emulator for the Australian National University (ANU)'s architecture rPeANUt.
+# rpeanut-js
+rpeanut-js is a web-based IDE, assembler and emulator for the Australian National University (ANU)'s architecture rPeANUt.
 
 There is a live version at [***REMOVED***.com/app/rnutjs](http://***REMOVED***.com/app/rnutjs).
 
