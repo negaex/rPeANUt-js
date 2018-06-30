@@ -2,150 +2,161 @@
 <html xmlns="http://www.w3.org/1999/xhtml" manifest="cache.manifest?v=5">
 <!--<html xmlns="http://www.w3.org/1999/xhtml">-->
 <!--<html xmlns="http://www.w3.org/1999/xhtml"i manifest="cache.manifest">-->
-	<head>
 
-    <script>
-      if ((document.location.hostname != "localhost") && (window.location.protocol != "https:"))
-          window.location.protocol = "https";
-      </script>
+<head>
 
-    <meta name="description" content="A web-based rPeANUt IDE, assembler and emulator by ***REMOVED***. An alternate development platform for ANU's COMP2300 rPeANUt architecture." />
-    <meta name="author"      content="***REMOVED***" />
+	<script>
+		if ((document.location.hostname != "localhost") && (window.location.protocol != "https:"))
+			window.location.protocol = "https";
+	</script>
 
-		<meta name="viewport" content="minimal-ui" />
-		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta name="mobile-web-app-capable" content="yes" />
-		<meta name="viewport" content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no,minimal-ui" />
-		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+	<meta name="description" content="A web-based rPeANUt IDE, assembler and emulator. An alternate development platform for ANU's COMP2300 rPeANUt architecture."
+	/>
 
-		<!-- iPad (high-resolution Landscape – 2048 x 1496 pixels ) -->
-		<link rel="apple-touch-startup-image" sizes="1536x2008" href="resources/loading/apple-touch-startup-image-2048x1496.png" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait) and (-webkit-min-device-pixel-ratio: 2)" />
+	<meta name="viewport" content="minimal-ui" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<meta name="viewport" content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no,minimal-ui"
+	/>
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-		<!-- iPad (high-resolution) Portrait – 1536 x 2008 pixels -->
-		<link rel="apple-touch-startup-image" sizes="2048x1496" href="resources/loading/apple-touch-startup-image-1536x2008.png" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape) and (-webkit-min-device-pixel-ratio: 2)" />
+	<!-- iPad (high-resolution Landscape – 2048 x 1496 pixels ) -->
+	<link rel="apple-touch-startup-image" sizes="1536x2008" href="resources/loading/apple-touch-startup-image-2048x1496.png"
+	 media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait) and (-webkit-min-device-pixel-ratio: 2)"
+	/>
 
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<!-- iPad (high-resolution) Portrait – 1536 x 2008 pixels -->
+	<link rel="apple-touch-startup-image" sizes="2048x1496" href="resources/loading/apple-touch-startup-image-1536x2008.png"
+	 media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape) and (-webkit-min-device-pixel-ratio: 2)"
+	/>
+
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
 
-    <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-         })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+	<script>
+		(function (i, s, o, g, r, a, m) {
+			i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+				(i[r].q = i[r].q || []).push(arguments)
+			}, i[r].l = 1 * new Date(); a = s.createElement(o),
+				m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+		})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
 
-  ga('create', '{"provider"=>"google", "google"=>{"tracking_id"=>"UA-47471263-1"}}', 'auto');
-    ga('send', 'pageview');
-    </script>
+		ga('create', '{"provider"=>"google", "google"=>{"tracking_id"=>"UA-47471263-1"}}', 'auto');
+		ga('send', 'pageview');
+	</script>
 
-		<title>rPeANUt</title>
+	<title>rPeANUt</title>
 
-		<link rel=stylesheet href="lib/mirror/lib/codemirror.css" />
-		<link rel=stylesheet href="lib/mirror/theme/eclipse.css" />
-		<link type="text/css" rel="stylesheet" href="lib/layout/layout.css" />
-		<link type="text/css" rel="stylesheet" href="index.css" />
-		<link rel="stylesheet" href="lib/fa/css/font-awesome.min.css" />
-		<link rel="stylesheet" href="filesystem/files.css" />
+	<link rel=stylesheet href="lib/mirror/lib/codemirror.css" />
+	<link rel=stylesheet href="lib/mirror/theme/eclipse.css" />
+	<link type="text/css" rel="stylesheet" href="lib/layout/layout.css" />
+	<link type="text/css" rel="stylesheet" href="index.css" />
+	<link rel="stylesheet" href="lib/fa/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="filesystem/files.css" />
 
-		<!-- Dropbox -->
-    <script src="lib/dropbox-api.js" type="text/javascript"></script>
+	<!-- Dropbox -->
+	<script src="lib/dropbox-api.js" type="text/javascript"></script>
 
-		<!-- setZeroTimeout -->
-	  <script src="lib/setzerotimeout.js"></script>
+	<!-- setZeroTimeout -->
+	<script src="lib/setzerotimeout.js"></script>
 
-		<!-- Sweet Alert -->
-		<script src="lib/alertjs/sweet-alert.min.js"></script>
-		<link rel="stylesheet" href="lib/alertjs/sweet-alert.css" />
+	<!-- Sweet Alert -->
+	<script src="lib/alertjs/sweet-alert.min.js"></script>
+	<link rel="stylesheet" href="lib/alertjs/sweet-alert.css" />
 
-		<!-- CodeMirror -->
-		<script src="lib/mirror/lib/codemirror.js"></script>
-		<script src="lib/mirror/mode/gas/gas.js"></script>
-		<script src="lib/mirror/addon/search/search.js"></script>
-		<script src="lib/mirror/addon/search/searchcursor.js"></script>
-		<script src="lib/mirror/addon/dialog/dialog.js"></script>
-		<link type="text/css" rel="stylesheet" href="lib/mirror/addon/dialog/dialog.css" />
+	<!-- CodeMirror -->
+	<script src="lib/mirror/lib/codemirror.js"></script>
+	<script src="lib/mirror/mode/gas/gas.js"></script>
+	<script src="lib/mirror/addon/search/search.js"></script>
+	<script src="lib/mirror/addon/search/searchcursor.js"></script>
+	<script src="lib/mirror/addon/dialog/dialog.js"></script>
+	<link type="text/css" rel="stylesheet" href="lib/mirror/addon/dialog/dialog.css" />
 
-		<script src="lib/scroll/scrollfix.js" type="text/javascript" charset="utf-8"></script>
-		<script type="text/javascript" src="lib/layout/jquery.js"></script>
-		<script type="text/javascript" src="lib/layout/jquery.ui.all.js"></script>
-		<script type="text/javascript" src="lib/layout/jquery.layout.js"></script>
-		<script src="rnutjs/rAssembler.js"></script>
-		<script src="rnutjs/rEmulator.js"></script>
-		<script src="rnutjs/rnut.js"></script>
+	<script src="lib/scroll/scrollfix.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript" src="lib/layout/jquery.js"></script>
+	<script type="text/javascript" src="lib/layout/jquery.ui.all.js"></script>
+	<script type="text/javascript" src="lib/layout/jquery.layout.js"></script>
+	<script src="rnutjs/rAssembler.js"></script>
+	<script src="rnutjs/rEmulator.js"></script>
+	<script src="rnutjs/rnut.js"></script>
 
-	</head>
-	<body>
+</head>
 
-		<div class="outer-center" id="outer-center">
+<body>
 
-			<div class="center">
-				<div id="reg_header">Registers</div>
-				<table id="reg_table"><tbody></tbody></table>
-			</div>
+	<div class="outer-center" id="outer-center">
 
-			<div class="inner-east" id="scrollable">
-				<table id="selectable">
-					<thead>
-						<tr>
-							<th></th>
-							<th>Label</th>
-							<th>Address</th>
-							<th>Data</th>
-							<th>Asm</th>
-						</tr>
-					</thead>
-					<tbody>
-					</tbody>
-				</table>
-			</div>
-
-			<div class="ui-layout-south inner-south">
-				<textarea id="terminal_s"></textarea>
-				<canvas id="canvas" style="float:right; height:100%;width:auto;"></canvas>
-			</div>
-
+		<div class="center">
+			<div id="reg_header">Registers</div>
+			<table id="reg_table">
+				<tbody></tbody>
+			</table>
 		</div>
 
-		<div class="outer-west">
-			<div id="editor">
-				<textarea id="editor-m"></textarea>
-				<a href="" id="settings" style="position: absolute; right: 21px; top:8px; z-index:301;opacity:1;">
-					<i class="fa fa-times" style="color: #039be5; font-size: 20px;"></i>
-				</a>
-				<!--<a href="" id="save" style="position: absolute; right: 41px; top:18px; z-index:301;opacity:1;">
+		<div class="inner-east" id="scrollable">
+			<table id="selectable">
+				<thead>
+					<tr>
+						<th></th>
+						<th>Label</th>
+						<th>Address</th>
+						<th>Data</th>
+						<th>Asm</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="ui-layout-south inner-south">
+			<textarea id="terminal_s"></textarea>
+			<canvas id="canvas" style="float:right; height:100%;width:auto;"></canvas>
+		</div>
+
+	</div>
+
+	<div class="outer-west">
+		<div id="editor">
+			<textarea id="editor-m"></textarea>
+			<a href="" id="settings" style="position: absolute; right: 21px; top:8px; z-index:301;opacity:1;">
+				<i class="fa fa-times" style="color: #039be5; font-size: 20px;"></i>
+			</a>
+			<!--<a href="" id="save" style="position: absolute; right: 41px; top:18px; z-index:301;opacity:1;">
 					<i class="fa fa-save" style="color: #039be5; font-size: 16px;"></i>
 				</a>-->
-			</div>
-				<div id="settings_page">
-					<div class="filemanager">
-					<p>Local Storage</p>
-					<ul id="local" class="data">
-					</ul>
-					<p class="dropbox-hide">Dropbox</p>
-					<button href="#" onclick="client.authenticate();" id="dropbox-login">Dropbox Sync</button>
-					<ul id="dropbox" class="data dropbox-hide">
-					</ul>
+		</div>
+		<div id="settings_page">
+			<div class="filemanager">
+				<p>Local Storage</p>
+				<ul id="local" class="data">
+				</ul>
+				<p class="dropbox-hide">Dropbox</p>
+				<button href="#" onclick="client.authenticate();" id="dropbox-login">Dropbox Sync</button>
+				<ul id="dropbox" class="data dropbox-hide">
+				</ul>
 
 
-				</div>
 			</div>
 		</div>
+	</div>
 
-		<div class="ui-layout-north outer-north">
-			<div class="menubar">
-				<a class="title">rPeANUt</a>
-				<button onclick="stop()" class="material button_show" hidden>Stop</button>
-				<button onclick="run(0)" class="material button_hide">Run</button>
-				<button onclick="notfast=false;run(0)" class="material button_hide">Fast</button>
-				<button onclick="call_step()" class="material button_hide">Step</button>
-				<button onclick="run_assembler()" class="material button_hide">Assemble</button>
-			</div>
+	<div class="ui-layout-north outer-north">
+		<div class="menubar">
+			<a class="title">rPeANUt</a>
+			<button onclick="stop()" class="material button_show" hidden>Stop</button>
+			<button onclick="run(0)" class="material button_hide">Run</button>
+			<button onclick="notfast=false;run(0)" class="material button_hide">Fast</button>
+			<button onclick="call_step()" class="material button_hide">Step</button>
+			<button onclick="run_assembler()" class="material button_hide">Assemble</button>
 		</div>
+	</div>
 
-	</body>
+</body>
 
 
-	<script type="text/javascript" src="index.js"></script>
-	<script type="text/javascript" src="filesystem/filesystem.js"></script>
-	<script type="text/javascript" src="filesystem/dropbox.js"></script>
+<script type="text/javascript" src="index.js"></script>
+<script type="text/javascript" src="filesystem/filesystem.js"></script>
+<script type="text/javascript" src="filesystem/dropbox.js"></script>
 
 </html>
