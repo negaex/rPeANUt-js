@@ -1,7 +1,13 @@
 # rpeanut-js
 rpeanut-js is a web-based IDE, assembler and emulator for the Australian National University (ANU)'s architecture rPeANUt.
 
-There is a live version at [***REMOVED***.com/app/rnutjs](http://***REMOVED***.com/app/rnutjs).
+## LIVE VERSION
+
+[***REMOVED***.com/app/rnutjs](http://***REMOVED***.com/app/rnutjs)
+
+Load the sample file, click `Assemble` and then `Run`. The program will print `Hello World!` to the console.
+
+## Summary
 
 The goal of this project was to create an IDE that would facilitate working across different devices. The original rPeANUt simulator is written in Java, which isn't supported by current iOS devices. Although this web implementation falls short in terms of speed (it will run at about 2/3rd the speed), it can be run on any modern browser (not tested in IE or Opera).
 
