@@ -7,19 +7,24 @@ The goal of this project was to create an IDE that would facilitate working acro
 
 It makes use of HTML5 local storage and the Dropbox API to store and synchronize files across sessions and devices.
 
-The IDE is mobile-web-app capable, allowing it to be run on mobile devices without the of UI the browser.
+The IDE is mobile-web-app capable, allowing it to be run on mobile devices offline.
+
+Currently supports:
+  1. Break points
+  2. Fast running (doesn't pause to refresh the UI)
+  3. Dropbox sync and local storage
 
 Features coming in future updates:
   1. Screndump
   2. Error-line highlighting
 
-In the long run, the plan is to replace the rPeANUt emulator with a hardware simulator.
+In the long run, the plan is to replace the rPeANUt emulator with a simulator that more closely matches the hardware.
 
 Preview
 =======
 
 Image 1: Preview of running program.
-![alt tag](https://raw.githubusercontent.com/***REMOVED***/rnutjs/master/resources/previews/preview0.png)
+![rpeanut-js preview 1](./resources/previews/preview0.png)
 
 Image 2: Preview of file storage.
-![alt tag](https://raw.githubusercontent.com/***REMOVED***/rnutjs/master/resources/previews/preview1.png)
+![rpeanut-js preview 2](./resources/previews/preview1.png)
