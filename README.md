@@ -3,7 +3,7 @@ rpeanut-js is a web-based IDE, assembler and emulator for the Australian Nationa
 
 ## LIVE VERSION
 
-[***REMOVED***.com/app/rnutjs](http://***REMOVED***.com/app/rnutjs)
+[noiach.com/app/rnutjs](http://noiach.com/app/rnutjs)
 
 Load the sample file, click `Assemble` and then `Run`. The program will print `Hello World!` to the console.
 
